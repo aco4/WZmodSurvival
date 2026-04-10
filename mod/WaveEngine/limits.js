@@ -16,6 +16,10 @@ function limits_eventStartLevel()
 
 function limits_update()
 {
+	if (N <= 0)
+	{
+		return;
+	}
 	for (let player = 0; player < maxPlayers; player++)
 	{
 		for (const [name, limit] of Object.entries(limits_structure()))

@@ -128,26 +128,26 @@ function reticule_objectCheck(object)
 	{
 		if (object.droidType === DROID_CONSTRUCT)
 		{
-			reticule_buildCheck();
+			queue("reticule_buildCheck"); // Wait 1 tick for the object to be removed
 		}
 		else if (object.droidType === DROID_COMMAND)
 		{
-			reticule_commandCheck();
+			queue("reticule_commandCheck");
 		}
 	}
 	else if (object.type === STRUCTURE)
 	{
 		if (object.stattype === HQ)
 		{
-			reticule_designCheck();
+			queue("reticule_designCheck");
 		}
 		else if (object.stattype === RESEARCH_LAB)
 		{
-			reticule_researchCheck();
+			queue("reticule_researchCheck");
 		}
 		else if (object.stattype === FACTORY || object.stattype === CYBORG_FACTORY || object.stattype === VTOL_FACTORY)
 		{
-			reticule_manufactureCheck();
+			queue("reticule_manufactureCheck");
 		}
 	}
 }

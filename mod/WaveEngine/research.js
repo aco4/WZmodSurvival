@@ -20,6 +20,7 @@ function research_eventStartLevel()
 				enableResearch("R-Sys-Sensor-Turret01", player);
 				enableResearch("R-Wpn-MG1Mk1", player);
 				enableResearch("R-Sys-Engineering01", player);
+				research_completeOnTime(0, player); // Construction Unit, Light Body - Viper, and Wheeled Propulsion
 			}
 			else if (baseType === CAMP_BASE)
 			{
