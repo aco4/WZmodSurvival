@@ -1,8 +1,5 @@
 receiveAllEvents(true);
 
-// Include libraries
-include("WaveEngine/lib/Template.js");
-
 // Include global variables
 include("WaveEngine/ENEMY.js");
 include("WaveEngine/TEMPLATES.js");
