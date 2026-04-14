@@ -11,6 +11,7 @@
 - Spawn rate is variable
 - Component upgrades are variable
 - Assumes map structures are compliant with limits
+- No saveload support yet
 
 ## Download
 1. Start Warzone 2100. Click **Options**
