@@ -10,14 +10,25 @@ function spawn_tick()
 	const minute = Math.ceil(gameTime / 1000 / 60);
 	const length = Math.min(TEMPLATES.length, minute);
 	const template = TEMPLATES[syncRandom(length)];
-
-	if (template) {
-		const [x, y] = spawn_positions[syncRandom(spawn_positions.length)];
+	const [x, y] = spawn_positions[syncRandom(spawn_positions.length)];
+	if (template)
+	{
 		addDroid(ENEMY, x, y, template.name, template.body, template.propulsion, "", "", ...template.turrets);
 	}
-
-	queue("spawn_tick");
+	queue("spawn_tick", spawn_delay);
 }
+
+const spawn_delay = (() =>
+{
+	switch (playerData[ENEMY].difficulty)
+	{
+		case INSANE: return 100;
+		case HARD  : return 200;
+		case MEDIUM: return 400;
+		case EASY  : return 800;
+		default    : return 1000;
+	}
+})();
 
 const spawn_positions = (() => {
 	const continents = [];

@@ -4,12 +4,9 @@
 - Enemies spawn on the edges of the map
 - Enemies cannot spawn on CLIFF or WATER tiles
 - Support only 2 teams: a single AI bot (Wave.js) versus a team of 1-4 humans
-- AI Difficulty has no effect
 - Requires shared research on
 - Assumes no custom scroll limits or changes in map size (scroll limits === map limits)
-- Unit designs are fixed
-- Spawn rate is variable
-- Component upgrades are variable
+- Unit designs are variable
 - Assumes map structures are compliant with limits
 - No saveload support yet
 
@@ -20,12 +17,23 @@
 4. Download [`📦mod.zip`](https://example.com/). Put in `📁mods/4.6.2/autoload/`
 5. Restart Warzone 2100
 
+## AI Difficulty
+* Insane = 10 enemies per second
+* Hard = 5 enemies per second
+* Medium = 2.5 enemies per second
+* Easy = 1.25 enemies per second
+
 ## Configuration
-Interesting files to configure:
-- `TEMPLATES.js`
-- `upgrade.js`
-- `timer.js`
-- `spawn.js`
+Edit `TEMPLATES.js` to configure:
+* Enemy unit designs
+* The order of appearance
+
+Edit `spawn.js` to configure:
+* The delay between enemy spawns (minimum = 100. only intervals of 100 work)
+* Enemy spawn positions
+
+Edit `timer.js` to configure:
+* The number of seconds until the attack begins
 
 ## License
 SPDX-License-Identifier: GPL-2.0-or-later

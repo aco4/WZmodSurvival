@@ -13,7 +13,6 @@ include("WaveEngine/research.js");
 include("WaveEngine/texture.js");
 include("WaveEngine/weather.js");
 include("WaveEngine/endConditions.js");
-// include("WaveEngine/oildrum.js");
 include("WaveEngine/base.js");
 include("WaveEngine/limits.js");
 include("WaveEngine/enableStructure.js");
@@ -22,6 +21,5 @@ include("WaveEngine/experience.js");
 include("WaveEngine/vtol.js");
 include("WaveEngine/timer.js");
 include("WaveEngine/spawn.js");
-include("WaveEngine/upgrade.js");
 
 // TODO validate Key Assumptions
