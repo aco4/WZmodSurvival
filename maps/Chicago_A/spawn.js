@@ -11,8 +11,10 @@ function spawn_tick()
 	const length = Math.min(TEMPLATES.length, minute);
 	const template = TEMPLATES[syncRandom(length)];
 
-	const [x, y] = spawn_positions[syncRandom(spawn_positions.length)];
-	addDroid(ENEMY, x, y, template.name, template.body, template.propulsion, "", "", ...template.turrets);
+	if (template) {
+		const [x, y] = spawn_positions[syncRandom(spawn_positions.length)];
+		addDroid(ENEMY, x, y, template.name, template.body, template.propulsion, "", "", ...template.turrets);
+	}
 
 	queue("spawn_tick");
 }
