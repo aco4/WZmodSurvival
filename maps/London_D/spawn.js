@@ -16,7 +16,7 @@ function spawn_tick()
 		addDroid(ENEMY, x, y, template.name, template.body, template.propulsion, "", "", ...template.turrets);
 	}
 
-	queue("spawn_tick");
+	queue("spawn_tick", 1000); // every 1 second
 }
 
 const spawn_positions = [
