@@ -32,7 +32,7 @@ const TEMPLATES = [
 	{ turrets: ["Rocket-MRL-Hvy"  ], body: "Body6SUPP"      , propulsion: "tracked01" , name: "Heavy Rocket Array Panther Tracks" },
 	{ turrets: ["Cannon375mmMk1"  ], body: "Body6SUPP"      , propulsion: "HalfTrack" , name: "Heavy Cannon Panther Half-tracks" },
 	{ turrets: ["Bomb1-VTOL-LtHE" ], body: "Body2SUP"       , propulsion: "V-Tol"     , name: "VTOL Cluster Bomb Bay Leopard VTOL" },
-	{ turrets: ["Rocket-BB"       ], body: "Body2SUP"       , propulsion: "V-Tol"     , name: "Bunker Buster Leopard VTOL" },
+	{ turrets: ["Rocket-VTOL-BB"  ], body: "Body2SUP"       , propulsion: "V-Tol"     , name: "VTOL Bunker Buster Leopard VTOL" },
 	{ turrets: ["Cannon375mmMk1"  ], body: "Body6SUPP"      , propulsion: "tracked01" , name: "Heavy Cannon Panther Tracks" },
 	{ turrets: ["Cannon375mmMk1"  ], body: "Body9REC"       , propulsion: "tracked01" , name: "Heavy Cannon Tiger Tracks" },
 	{ turrets: ["Cannon6TwinAslt" ], body: "Body9REC"       , propulsion: "tracked01" , name: "Twin Assault Cannon Tiger Tracks" },
