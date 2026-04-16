@@ -3,7 +3,7 @@
 - Overhaul the PvP experience into a PvE defense survival mode
 - Enemies spawn on the edges of the map
 - Enemies cannot spawn on CLIFF or WATER tiles
-- Support only 2 teams: a single AI bot (Wave.js) versus a team of 1-4 humans
+- Support only 2 teams: a single AI bot (SurvivalMod.js) versus a team of 1-4 humans
 - Requires shared research on
 - Assumes no custom scroll limits or changes in map size (scroll limits === map limits)
 - Unit designs are variable

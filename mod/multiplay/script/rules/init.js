@@ -12,7 +12,7 @@ include("SurvivalMod/power.js");
 include("SurvivalMod/research.js");
 include("SurvivalMod/texture.js");
 include("SurvivalMod/weather.js");
-include("SurvivalMod/endConditions.js");
+include("SurvivalMod/gameOver.js");
 include("SurvivalMod/base.js");
 include("SurvivalMod/limits.js");
 include("SurvivalMod/enableStructure.js");
