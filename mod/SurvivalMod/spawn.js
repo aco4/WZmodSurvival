@@ -28,9 +28,9 @@ const spawn_delay = (() =>
 	{
 		case INSANE: return 100;
 		case HARD  : return 200;
-		case MEDIUM: return 400;
-		case EASY  : return 800;
-		default    : return 1000;
+		case MEDIUM: return 300;
+		case EASY  : return 400;
+		default    : return 500;
 	}
 })();
 

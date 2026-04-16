@@ -1,4 +1,4 @@
-# Wave Engine
+# SurvivalMod
 - Complete rewrite of the Warzone 2100 skirmish/multiplayer scripts
 - Overhaul the PvP experience into a PvE defense survival mode
 - Enemies spawn on the edges of the map
@@ -20,8 +20,8 @@
 ## AI Difficulty
 * Insane = 10 enemies per second
 * Hard = 5 enemies per second
-* Medium = 2.5 enemies per second
-* Easy = 1.25 enemies per second
+* Medium = 3.33 enemies per second
+* Easy = 2.5 enemies per second
 
 ## Configuration
 Edit `TEMPLATES.js` to configure:

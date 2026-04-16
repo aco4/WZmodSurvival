@@ -63,6 +63,7 @@ function research_tick()
 
 function research_completeOnTime(time, player)
 {
+	hackNetOff();
 	for (const [research, researchTime] of Object.entries(research_minimumResearchTime))
 	{
 		if (researchTime <= time)
@@ -70,4 +71,5 @@ function research_completeOnTime(time, player)
 			completeResearch(research, player);
 		}
 	}
+	hackNetOn();
 }

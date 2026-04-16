@@ -1,25 +1,25 @@
 receiveAllEvents(true);
 
 // Include global variables
-include("WaveEngine/ENEMY.js");
-include("WaveEngine/TEMPLATES.js");
+include("SurvivalMod/ENEMY.js");
+include("SurvivalMod/TEMPLATES.js");
 
 // Include rest
-include("WaveEngine/reticule.js");
-include("WaveEngine/audio.js");
-include("WaveEngine/minimap.js");
-include("WaveEngine/power.js");
-include("WaveEngine/research.js");
-include("WaveEngine/texture.js");
-include("WaveEngine/weather.js");
-include("WaveEngine/endConditions.js");
-include("WaveEngine/base.js");
-include("WaveEngine/limits.js");
-include("WaveEngine/enableStructure.js");
-include("WaveEngine/bugFix.js");
-include("WaveEngine/experience.js");
-include("WaveEngine/vtol.js");
-include("WaveEngine/timer.js");
-include("WaveEngine/spawn.js");
+include("SurvivalMod/reticule.js");
+include("SurvivalMod/audio.js");
+include("SurvivalMod/minimap.js");
+include("SurvivalMod/power.js");
+include("SurvivalMod/research.js");
+include("SurvivalMod/texture.js");
+include("SurvivalMod/weather.js");
+include("SurvivalMod/endConditions.js");
+include("SurvivalMod/base.js");
+include("SurvivalMod/limits.js");
+include("SurvivalMod/enableStructure.js");
+include("SurvivalMod/bugFix.js");
+include("SurvivalMod/experience.js");
+include("SurvivalMod/vtol.js");
+include("SurvivalMod/timer.js");
+include("SurvivalMod/spawn.js");
 
 // TODO validate Key Assumptions
