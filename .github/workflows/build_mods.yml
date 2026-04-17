@@ -49,3 +49,23 @@ jobs:
           path: dist/
           retention-days: 30
           if-no-files-found: error
+
+  # This runs independently of detect-maps and build-map (no dependency)
+  # builds in parallel with the other jobs
+  build-core:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create default mod
+        run: |
+          mkdir -p dist/
+          rsync -a mod/ dist/
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SurvivalMod
+          path: dist/
+          retention-days: 30
+          if-no-files-found: error
