@@ -1,14 +1,18 @@
 # SurvivalMod
-- Complete rewrite of the Warzone 2100 skirmish/multiplayer scripts
-- Overhaul the PvP experience into a PvE defense survival mode
+- How long can you survive?
+- Cooperative team game (1-4 players) against endless enemies
+- Shared research
+- Enemy units get stronger over time
+- Enemy research follows vanilla timeline
+
+No saveload support yet.
+
+## Maps
 - Enemies spawn on the edges of the map
 - Enemies cannot spawn on CLIFF or WATER tiles
-- Support only 2 teams: a single AI bot (SurvivalMod.js) versus a team of 1-4 humans
-- Requires shared research on
-- Assumes no custom scroll limits or changes in map size (scroll limits === map limits)
-- Unit designs are variable
-- Assumes map structures are compliant with limits
-- No saveload support yet
+- The mod does not use scroll limits to manipulate the map size
+- The mod does not check if number of structures complies with limits
+- Player 0 is the enemy AI
 
 ## Download
 1. Start Warzone 2100. Click **Options**
