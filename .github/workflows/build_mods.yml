@@ -7,6 +7,26 @@ on:
   workflow_dispatch:
 
 jobs:
+  # This runs independently of detect-maps and build-mods (no dependency)
+  # builds in parallel with the other jobs
+  build-default-mod:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create default mod
+        run: |
+          mkdir -p dist/
+          rsync -a mod/ dist/
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SurvivalMod
+          path: dist/
+          retention-days: 30
+          if-no-files-found: error
+
   # ── Step 1: Discover maps dynamically ─────────────────────────────────────
   detect-maps:
     runs-on: ubuntu-latest
@@ -46,26 +66,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: SurvivalMod-${{ matrix.map }}
-          path: dist/
-          retention-days: 30
-          if-no-files-found: error
-
-  # This runs independently of detect-maps and build-map (no dependency)
-  # builds in parallel with the other jobs
-  build-core:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Create default mod
-        run: |
-          mkdir -p dist/
-          rsync -a mod/ dist/
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: SurvivalMod
           path: dist/
           retention-days: 30
           if-no-files-found: error
