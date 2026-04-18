@@ -22,6 +22,7 @@ function gameOver_tick()
 		const mm = Math.floor(gameTime/1000/60);
 		const ss = (Math.floor(gameTime/1000) - 60*mm).toString().padStart(2, "0"); ;
 		gameOver_duration = mm + ":" + ss;
+		gameOver_message();
 		setTimer("gameOver_message", 5000);
 	}
 	else
