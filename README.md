@@ -35,6 +35,9 @@ Edit `spawn.js` to configure:
 Edit `timer.js` to configure:
 * The number of seconds until the attack begins
 
+## Workflow
+Each directory in [WZmodSurvival/maps/](/maps/) represents a different map. Each directory contains file overrides that mirror the ones in [WZmodSurvival/mod/](/mod/). The workflow in [WZmodSurvival/.github/workflows/build_mods.yml](/.github/workflows/build_mods.yml) will automatically build the mods for each map by overriding the correct files.
+
 ## License
 SPDX-License-Identifier: GPL-2.0-or-later
 
