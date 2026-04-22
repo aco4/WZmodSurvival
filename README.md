@@ -4,6 +4,8 @@
 - Shared research
 - Enemy units get stronger over time
 - Enemy research follows vanilla timeline
+- BUG FIX: truck long-range repair will cause error
+- Experience gain disabled. No ranks
 
 No saveload support yet.
 
@@ -13,13 +15,6 @@ No saveload support yet.
 - The mod does not use scroll limits to manipulate the map size
 - The mod does not check if number of structures complies with limits
 - Player 0 is the enemy AI
-
-## Download
-1. Start Warzone 2100. Click **Options**
-2. Click "Open Configuration Directory"
-3. Download [`📦map.wz`](https://example.com/). Put in `📁maps/`
-4. Download [`📦mod.zip`](https://example.com/). Put in `📁mods/4.6.2/autoload/`
-5. Restart Warzone 2100
 
 ## AI Difficulty
 * Insane = 10 enemies per second
