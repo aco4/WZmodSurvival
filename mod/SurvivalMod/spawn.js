@@ -17,7 +17,9 @@ function spawn_tick()
 	if (template)
 	{
 		const [x, y] = spawn_positions[syncRandom(spawn_positions.length)];
+		hackNetOff();
 		addDroid(ENEMY, x, y, template.name, template.body, template.propulsion, "", "", ...template.turrets);
+		hackNetOn();
 	}
 	queue("spawn_tick", spawn_delay);
 }
