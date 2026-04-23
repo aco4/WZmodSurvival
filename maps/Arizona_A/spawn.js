@@ -14,5 +14,5 @@ function spawn_tick()
 	{
 		addDroid(ENEMY, 16, 33, template.name, template.body, template.propulsion, "", "", ...template.turrets);
 	}
-	queue("spawn_tick", 1000);
+	queue("spawn_tick", 3000);
 }
