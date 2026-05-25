@@ -52,7 +52,7 @@ function spawn_count_allies()
 		if (player !== ENEMY)
 		{
 			count += countDroid(DROID_ANY, player) - countDroid(DROID_CONSTRUCT, player);
-			count += enumStruct(player).length - countStruct("A0ResourceExtractor", player) - countStruct("A0ResearchFacility", player) - countStruct("A0PowerGenerator", player);
+			count += enumStruct(player).filter(s => s.status === BUILT && s.stattype === DEFENSE).length;
 		}
 	}
 	return count;
