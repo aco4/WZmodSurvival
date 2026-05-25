@@ -32,15 +32,12 @@ function spawn_tick()
 			}
 		}
 	} else if (numObjectsEnemy > numObjectsAllies) {
-		let difference = numObjectsEnemy - numObjectsAllies;
-		for (const droid of enumDroid(ENEMY))
-		{
-			removeObject(droid, true); // remove droid with sfx
-			difference -= 1;
-			if (difference <= 0)
-			{
-				return;
-			}
+		const difference = numObjectsEnemy - numObjectsAllies;
+		const droids = enumDroid(ENEMY);
+
+		// Iterate in reverse to remove the oldest droids first
+		for (let i = droids.length - 1; i >= droids.length - difference; i--) {
+			removeObject(droids[i], true);
 		}
 	}
 
@@ -54,8 +51,8 @@ function spawn_count_allies()
 	{
 		if (player !== ENEMY)
 		{
-			count += countDroid(DROID_ANY, player);
-			count += enumStruct(player).length;
+			count += countDroid(DROID_ANY, player) - countDroid(DROID_CONSTRUCT, player);
+			count += enumStruct(player).length - countStruct("A0ResourceExtractor", player) - countStruct("A0ResearchFacility", player) - countStruct("A0PowerGenerator", player);
 		}
 	}
 	return count;
