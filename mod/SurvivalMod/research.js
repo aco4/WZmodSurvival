@@ -39,21 +39,29 @@ function research_eventStartLevel()
 {
 	if (research_offset === null)
 	{
-		return;
+		for (let player = 0; player < maxPlayers; player++)
+		{
+			completeAllResearch(player);
+		}
 	}
-
-	for (let player = 0; player < maxPlayers; player++)
+	else
 	{
-		enableResearch("R-Sys-Sensor-Turret01", player);
-		enableResearch("R-Wpn-MG1Mk1", player);
-		enableResearch("R-Sys-Engineering01", player);
-		research_completeOnTime(research_offset, player);
+		for (let player = 0; player < maxPlayers; player++)
+		{
+			enableResearch("R-Sys-Sensor-Turret01", player);
+			enableResearch("R-Wpn-MG1Mk1", player);
+			enableResearch("R-Sys-Engineering01", player);
+			research_completeOnTime(research_offset, player);
+		}
 	}
 }
 
 function research_eventMissionTimeout()
 {
-	setTimer("research_tick", 60*1000); // every 1 minute
+	if (research_offset !== null)
+	{
+		setTimer("research_tick", 60*1000); // every 1 minute
+	}
 }
 
 function research_tick()
