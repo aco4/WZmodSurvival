@@ -11,6 +11,14 @@ function limits_eventPlayerLeft(player)
 
 function limits_eventStartLevel()
 {
+	N = 0;
+	for (let player = 0; player < maxPlayers; player++)
+	{
+		if (player !== ENEMY && countDroid(player) > 0)
+		{
+			N++;
+		}
+	}
 	limits_update();
 }
 
