@@ -14,48 +14,53 @@ function spawn_tick()
 	const minute = Math.ceil(gameTime / 1000 / 60);
 	const length = Math.min(TEMPLATES.length, minute);
 
-	// Always match the number of enemies with the number of player objects
-	const numObjectsAllies = spawn_count_allies();
-	const numObjectsEnemy = countDroid(DROID_ANY, ENEMY);
-	if (numObjectsEnemy < numObjectsAllies)
-	{
-		const difference = numObjectsAllies - numObjectsEnemy;
-		for (let i = 0; i < difference; i++)
-		{
-			const template = TEMPLATES[syncRandom(length)];
-			if (template)
-			{
-				const [x, y] = spawn_positions[syncRandom(spawn_positions.length)];
-				hackNetOff();
-				addDroid(ENEMY, x, y, template.name, template.body, template.propulsion, "", "", ...template.turrets);
-				hackNetOn();
-			}
-		}
-	} else if (numObjectsEnemy > numObjectsAllies) {
-		const difference = numObjectsEnemy - numObjectsAllies;
-		const droids = enumDroid(ENEMY);
-
-		// Iterate in reverse to remove the oldest droids first
-		for (let i = droids.length - 1; i >= droids.length - difference; i--) {
-			removeObject(droids[i], true);
-		}
-	}
-
-	queue("spawn_tick", 3 * 1000);
-}
-
-function spawn_count_allies()
-{
-	let count = 0;
+	// Calculate team power
+	let powerAllies = 0;
 	for (let player = 0; player < maxPlayers; player++)
 	{
 		if (player !== ENEMY)
 		{
-			count += countDroid(DROID_ANY, player) - countDroid(DROID_CONSTRUCT, player);
-			count += enumStruct(player).filter(s => s.status === BUILT && s.stattype === DEFENSE).length;
+			for (const droid of enumDroid(player))
+			{
+				if (droid.droidType === DROID_WEAPON || droid.droidType === DROID_CYBORG)
+				{
+					powerAllies += droid.cost;
+				}
+			}
+			for (const structure of enumStruct(player))
+			{
+				if (structure.stattype === DEFENSE)
+				{
+					powerAllies += structure.cost;
+				}
+			}
 		}
 	}
-	return count;
+
+	// Calculate enemy power
+	let powerEnemy = 0;
+	const enemy_droids = enumDroid(ENEMY);
+	for (const droid of enemy_droids)
+	{
+		powerEnemy += Math.max(35, droid.cost);
+	}
+
+	// Add enemies until the power exceeds the human players
+	while (powerEnemy < powerAllies)
+	{
+		const template = TEMPLATES[syncRandom(length)];
+		if (template)
+		{
+			const [x, y] = spawn_positions[syncRandom(spawn_positions.length)];
+			hackNetOff();
+			const droid = addDroid(ENEMY, x, y, template.name, template.body, template.propulsion, "", "", ...template.turrets);
+			hackNetOn();
+
+			powerEnemy += Math.max(35, droid.cost);
+		}
+	}
+
+	queue("spawn_tick", 10 * 1000);
 }
 
 const spawn_positions = (() => {
