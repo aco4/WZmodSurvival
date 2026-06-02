@@ -1,6 +1,6 @@
 namespace("gameOver_");
 
-var gameOver_duration = "";
+var gameOver_message = "";
 
 function gameOver_eventGameInit()
 {
@@ -19,11 +19,9 @@ function gameOver_tick()
 			gameOverMessage(false);
 		}
 
-		const mm = Math.floor(gameTime/1000/60);
-		const ss = (Math.floor(gameTime/1000) - 60*mm).toString().padStart(2, "0"); ;
-		gameOver_duration = mm + ":" + ss;
-		gameOver_message();
-		setTimer("gameOver_message", 5000);
+		gameOver_message = gameOver_formatTime(gameTime);
+		gameOver_sendMessage();
+		setTimer("gameOver_sendMessage", 5000);
 	}
 	else
 	{
@@ -61,10 +59,25 @@ function gameOver_isAlive(player)
 		|| enumStruct(player, CYBORG_FACTORY).some(structure => structure.status === BUILT);
 }
 
-function gameOver_message()
+function gameOver_sendMessage()
 {
 	console(" ");
 	console("★ " + _("Well-played") + " ★");
-	console(_("You survived") + " " + gameOver_duration);
+	console(_("You survived") + " " + gameOver_message);
 	console(" ");
+}
+
+function gameOver_formatTime(time)
+{
+	const hours = Math.floor(time/1000/60/60);
+	const minutes = Math.floor(time/1000/60) % 60;
+	const seconds = Math.floor(time/1000) % 60;
+	if (hours > 0)
+	{
+		return `${hours}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+	}
+	else
+	{
+		return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+	}
 }
