@@ -16,7 +16,6 @@ include("SurvivalMod/gameOver.js");
 include("SurvivalMod/base.js");
 include("SurvivalMod/limits.js");
 include("SurvivalMod/enableStructure.js");
-include("SurvivalMod/bugFix.js");
 include("SurvivalMod/experience.js");
 include("SurvivalMod/vtol.js");
 include("SurvivalMod/timer.js");
