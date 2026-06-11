@@ -45,12 +45,12 @@ const spawn_positions = (() => {
 			continue;
 		}
 		const { x, y } = startPositions[player];
-		continents.push(MapTiles[y][x].limitedContinent);
+		continents.push(MapTiles[y][x].hoverContinent);
 	}
 
 	return spawn_getPositions((x, y) =>
 	{
-		const continent = MapTiles[y][x].limitedContinent;
+		const continent = MapTiles[y][x].hoverContinent;
 		const t = terrainType(x, y);
 		return continents.some(c => c === continent) && t !== TER_CLIFFFACE;
 	});
