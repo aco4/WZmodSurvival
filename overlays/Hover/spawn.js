@@ -13,28 +13,55 @@ function spawn_tick()
 	}
 	const minute = Math.ceil(gameTime / 1000 / 60);
 	const length = Math.min(TEMPLATES.length, minute);
-	const template = TEMPLATES[syncRandom(length)];
-	if (template)
-	{
-		const [x, y] = spawn_positions[syncRandom(spawn_positions.length)];
-		hackNetOff();
-		addDroid(ENEMY, x, y, template.name, template.body, template.propulsion, "", "", ...template.turrets);
-		hackNetOn();
-	}
-	queue("spawn_tick", spawn_delay);
-}
 
-const spawn_delay = (() =>
-{
-	switch (playerData[ENEMY].difficulty)
+	// Calculate team power
+	let powerAllies = 0;
+	for (let player = 0; player < maxPlayers; player++)
 	{
-		case INSANE: return 100;
-		case HARD  : return 200;
-		case MEDIUM: return 300;
-		case EASY  : return 400;
-		default    : return 500;
+		if (player !== ENEMY)
+		{
+			for (const droid of enumDroid(player))
+			{
+				if (droid.droidType === DROID_WEAPON || droid.droidType === DROID_CYBORG)
+				{
+					powerAllies += droid.cost;
+				}
+			}
+			for (const structure of enumStruct(player))
+			{
+				if (structure.stattype === DEFENSE)
+				{
+					powerAllies += Math.floor((structure.cost)**1.03);
+				}
+			}
+		}
 	}
-})();
+
+	// Calculate enemy power
+	let powerEnemy = 0;
+	const enemy_droids = enumDroid(ENEMY);
+	for (const droid of enemy_droids)
+	{
+		powerEnemy += Math.max(35, droid.cost);
+	}
+
+	// Add enemies until the power exceeds the human players
+	while (powerEnemy < powerAllies)
+	{
+		const template = TEMPLATES[syncRandom(length)];
+		if (template)
+		{
+			const [x, y] = spawn_positions[syncRandom(spawn_positions.length)];
+			hackNetOff();
+			const droid = addDroid(ENEMY, x, y, template.name, template.body, template.propulsion, "", "", ...template.turrets);
+			hackNetOn();
+
+			powerEnemy += Math.max(35, droid.cost);
+		}
+	}
+
+	queue("spawn_tick", 10 * 1000);
+}
 
 const spawn_positions = (() => {
 	const continents = [];
@@ -51,8 +78,7 @@ const spawn_positions = (() => {
 	return spawn_getPositions((x, y) =>
 	{
 		const continent = MapTiles[y][x].hoverContinent;
-		const t = terrainType(x, y);
-		return continents.some(c => c === continent) && t !== TER_CLIFFFACE;
+		return continents.some(c => c === continent);
 	});
 })();
 
