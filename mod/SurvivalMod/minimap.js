@@ -14,7 +14,7 @@ function minimap_eventStartLevel()
 
 function minimap_canSeeMinimap(player)
 {
-	return enumStruct(player, HQ).some(structure => structure.built);
+	return enumStruct(player, HQ).some(structure => structure.status === BUILT);
 }
 
 function minimap_check()
