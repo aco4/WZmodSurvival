@@ -1,4 +1,4 @@
-namespace("base_")
+namespace("base_");
 
 function base_eventGameInit()
 {
