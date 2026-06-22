@@ -5,7 +5,14 @@ function eventStartLevel()
 
 function tick()
 {
-	const targets = enumArea(0, 0, mapWidth, mapHeight, ENEMIES, false);
+	const targets = [];
+	for (let player = 0; player < maxPlayers; player++)
+	{
+		if (player !== me)
+		{
+			enumStruct(player).forEach(s => targets.push(s));
+		}
+	}
 	if (targets.length === 0)
 	{
 		return;
@@ -23,11 +30,6 @@ function tick()
 			{
 				const target = targets[Math.floor(Math.random() * targets.length)];
 				orderDroidObj(droid, DORDER_OBSERVE, target);
-			}
-			else if (Stats.Weapon[droid.weapons[0].fullname].FireOnMove)
-			{
-				const target = targets[Math.floor(Math.random() * targets.length)];
-				orderDroidObj(droid, DORDER_ATTACK, target);
 			}
 			else
 			{

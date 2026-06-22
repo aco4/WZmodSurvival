@@ -1,8 +1,8 @@
 namespace("spawn_")
 
-function spawn_eventMissionTimeout()
+function spawn_eventStartLevel()
 {
-	queue("spawn_tick");
+	queue("spawn_tick", 60 * 1000);
 }
 
 function spawn_tick()

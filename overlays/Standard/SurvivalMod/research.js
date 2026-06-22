@@ -58,7 +58,7 @@ function research_eventStartLevel()
 	}
 }
 
-function research_eventMissionTimeout()
+function research_eventStartLevel()
 {
 	if (research_offset !== Infinity)
 	{

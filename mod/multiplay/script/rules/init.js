@@ -3,6 +3,7 @@ receiveAllEvents(true);
 // Include global variables
 include("SurvivalMod/ENEMY.js");
 include("SurvivalMod/TEMPLATES.js");
+include("SurvivalMod/TECH_TIME.js");
 
 // Include rest
 include("SurvivalMod/reticule.js");
@@ -18,7 +19,6 @@ include("SurvivalMod/limits.js");
 include("SurvivalMod/enableStructure.js");
 include("SurvivalMod/experience.js");
 include("SurvivalMod/vtol.js");
-include("SurvivalMod/timer.js");
 include("SurvivalMod/spawn.js");
 
 // TODO validate Key Assumptions

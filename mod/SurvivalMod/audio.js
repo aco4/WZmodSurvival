@@ -17,9 +17,3 @@ function audio_eventAttacked(victimObj, attackerObj)
 		}
 	}
 }
-
-function audio_eventMissionTimeout()
-{
-	playSound("beacon.ogg");
-	playSound("nmedeted.ogg"); // "Enemy detected"
-}
