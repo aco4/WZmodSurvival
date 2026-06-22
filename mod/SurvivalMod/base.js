@@ -4,6 +4,10 @@ function base_eventGameInit()
 {
 	for (let player = 0; player < maxPlayers; player++)
 	{
+		if (player === ENEMY)
+		{
+			continue;
+		}
 		if (baseType === CAMP_CLEAN || baseType === CAMP_BASE)
 		{
 			for (const structure of enumStruct(player))
