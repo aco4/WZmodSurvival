@@ -28,7 +28,7 @@ Each directory in [WZmodSurvival/overlays/](/overlays/) represents a variant of 
 ### Adaptive
 The default Survival Mod experience.
 - Number of enemies adapts to your performance.
-- Enemy research matches your research pace exactly.
+- Enemy research matches your research speed.
 
 ### Standard
 Difficulty is fixed to provide a standardized challenge.
