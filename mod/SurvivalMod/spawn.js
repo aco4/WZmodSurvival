@@ -89,6 +89,8 @@ var spawn_positions = (() => {
 			return continents.some(c => c === continent);
 		});
 	}
+
+	return limitedPositions;
 })();
 
 function spawn_getPositions(filter)
