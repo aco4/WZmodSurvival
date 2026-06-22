@@ -1,0 +1,1 @@
+{"x3_Body14SUP": {"armourHeat": 30, "armourKinetic": 30, "buildPoints": 1500, "buildPower": 270, "class": "Droids", "designable": 1, "hitpoints": 3150, "id": "x3_Body14SUP", "model": "x3_drhbod14.pie", "name": "Super Big Dragon", "powerOutput": 30000, "propulsionExtraModels": {"x3_tracked01": {"left": "x3_prstrk4.pie"}}, "size": "SUPER HEAVY", "weaponSlots": 2, "weight": 4500}}

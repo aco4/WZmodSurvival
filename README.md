@@ -1,26 +1,14 @@
 # SurvivalMod
 - How long can you survive?
-- Cooperative team game (1-4 players) against endless enemies
-- Shared research
-- Enemy units get stronger over time
-- Enemy research follows vanilla timeline
-- BUG FIX: truck long-range repair will cause error
-- Experience gain disabled. No ranks
-
-No saveload support yet.
+- Cooperative team game against endless enemies
+- Experience gain disabled (no ranks)
+- Saving/loading not supported yet
 
 ## Maps
+- Make Player 0 the enemy AI
 - Enemies spawn on the edges of the map
 - Enemies cannot spawn on CLIFF or WATER tiles
-- The mod does not use scroll limits to manipulate the map size
 - The mod does not check if number of structures complies with limits
-- Player 0 is the enemy AI
-
-## AI Difficulty
-* Insane = 10 enemies per second
-* Hard = 5 enemies per second
-* Medium = 3.33 enemies per second
-* Easy = 2.5 enemies per second
 
 ## Configuration
 Edit `TEMPLATES.js` to configure:
@@ -34,8 +22,26 @@ Edit `spawn.js` to configure:
 Edit `timer.js` to configure:
 * The number of seconds until the attack begins
 
-## Workflow
-Each directory in [WZmodSurvival/overlays/](/overlays/) represents a custom mod. These directories contain files that override the ones in [WZmodSurvival/mod/SurvivalMod](/mod/SurvivalMod/). The workflow in [WZmodSurvival/.github/workflows/build_mods.yml](/.github/workflows/build_mods.yml) will automatically build all the mods by overriding the correct files.
+## Mod Variants
+Each directory in [WZmodSurvival/overlays/](/overlays/) represents a variant of the Survival Mod. These directories contain files that override the ones in [WZmodSurvival/mod/](/mod/). The workflow in [WZmodSurvival/.github/workflows/ci.yml](/.github/workflows/ci.yml) will automatically build all the mod variants by overriding the correct files.
+
+### Adaptive
+The default Survival Mod experience.
+- Number of enemies adapts to your performance.
+- Enemy research matches your research pace exactly.
+
+### Standard
+Difficulty is fixed to provide a standardized challenge.
+* Insane = 10 enemies per second
+* Hard = 5 enemies per second
+* Medium = 3.33 enemies per second
+* Easy = 2.5 enemies per second
+
+### Hover
+Hover enemies.
+
+### Big
+Big enemies.
 
 ## License
 SPDX-License-Identifier: GPL-2.0-or-later

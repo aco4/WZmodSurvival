@@ -1,0 +1,71 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  detect-overlays:
+    runs-on: ubuntu-latest
+    outputs:
+      overlays: ${{ steps.list.outputs.overlays }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: List overlays
+        id: list
+        run: |
+          overlays=$(ls -1 overlays/ | jq -R . | jq -sc .)
+          echo "overlays=$overlays" >> "$GITHUB_OUTPUT"
+
+  build-assets:
+    needs: detect-overlays
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        overlay: ${{ fromJson(needs.detect-overlays.outputs.overlays) }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build archive
+        run: |
+          mkdir -p dist
+          rsync -a mod/ dist/
+          rsync -a overlays/${{ matrix.overlay }}/ dist/
+
+          archive="${{ github.event.repository.name }}-${{ github.ref_name }}-${{ matrix.overlay }}.zip"
+
+          (
+            cd dist
+            zip -r "../$archive" .
+          )
+
+      - name: Upload archive
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.overlay }}
+          path: "*.zip"
+
+  release:
+    needs: build-assets
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download archives
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/*.zip

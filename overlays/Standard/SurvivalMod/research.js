@@ -58,18 +58,17 @@ function research_eventStartLevel()
 	}
 }
 
-function research_eventResearched(research, structure, player)
+function research_eventMissionTimeout()
 {
-	if (player === ENEMY || research_offset === Infinity)
+	if (research_offset !== Infinity)
 	{
-		return;
+		setTimer("research_tick", 60*1000); // every 1 minute
 	}
+}
 
-	const time = research_minimumResearchTime[research.id];
-	if (time)
-	{
-		research_completeOnTime(time, ENEMY);
-	}
+function research_tick()
+{
+	research_completeOnTime(research_offset + Math.floor(gameTime/1000), ENEMY);
 }
 
 function research_completeOnTime(time, player)
