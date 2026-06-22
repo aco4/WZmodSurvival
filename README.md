@@ -11,7 +11,7 @@
 - The mod does not check if number of structures complies with limits
 
 ## Configuration
-Edit `TEMPLATES.js` to configure:
+Edit `TEMPLATES.js` with [this](https://aco4.github.io/WZmodSurvival/templates-editor/) to configure:
 * Enemy unit designs
 * The order of appearance
 
