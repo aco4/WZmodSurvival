@@ -70,7 +70,7 @@ function spawn_tick()
 }
 
 var spawn_positions = (() => {
-	const continents = [];
+	const startTiles = [];
 	for (let player = 0; player < maxPlayers; player++)
 	{
 		if (player === ENEMY)
@@ -78,21 +78,19 @@ var spawn_positions = (() => {
 			continue;
 		}
 		const { x, y } = startPositions[player];
-		continents.push(MapTiles[y][x].limitedContinent);
+		startTiles.push(MapTiles[y][x]);
 	}
 
 	const limitedPositions = spawn_getPositions((x, y) =>
 	{
-		const continent = MapTiles[y][x].limitedContinent;
-		return continents.some(c => c === continent);
+		return startTiles.some(t => t.limitedContinent === MapTiles[y][x].limitedContinent);
 	});
 
 	if (limitedPositions.length === 0)
 	{
 		return spawn_getPositions((x, y) =>
 		{
-			const continent = MapTiles[y][x].hoverContinent;
-			return continents.some(c => c === continent);
+			return startTiles.some(t => t.hoverContinent === MapTiles[y][x].hoverContinent);
 		});
 	}
 
