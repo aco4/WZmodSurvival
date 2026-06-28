@@ -27,6 +27,6 @@ var TECH_TIME = (() =>
 	}
 	else // multiTechLevel === 4
 	{
-		return Infinity;
+		return null;
 	}
 })();

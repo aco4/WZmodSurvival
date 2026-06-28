@@ -33,13 +33,13 @@ var research_offset = (() =>
 	}
 	else // multiTechLevel === 4
 	{
-		return Infinity;
+		return null;
 	}
 })();
 
 function research_eventStartLevel()
 {
-	if (research_offset === Infinity)
+	if (research_offset === null)
 	{
 		for (let player = 0; player < maxPlayers; player++)
 		{
@@ -60,7 +60,7 @@ function research_eventStartLevel()
 
 function research_eventStartLevel()
 {
-	if (research_offset !== Infinity)
+	if (research_offset !== null)
 	{
 		setTimer("research_tick", 60*1000); // every 1 minute
 	}

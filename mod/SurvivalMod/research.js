@@ -6,7 +6,7 @@ var research_list = Object.entries(research_minimumResearchTime);
 
 function research_eventStartLevel()
 {
-	if (TECH_TIME === Infinity)
+	if (TECH_TIME === null)
 	{
 		for (let player = 0; player < maxPlayers; player++)
 		{
@@ -27,7 +27,7 @@ function research_eventStartLevel()
 
 function research_eventResearched(research, structure, player)
 {
-	if (player === ENEMY || TECH_TIME === Infinity)
+	if (player === ENEMY || TECH_TIME === null)
 	{
 		return;
 	}
