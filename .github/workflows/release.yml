@@ -3,19 +3,40 @@ name: Release
 on:
   push:
     tags:
-      - 'v*'
+      - '**'
 
 permissions:
   contents: write
 
 jobs:
+  build-default:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build default mod
+        run: |
+          mkdir -p dist/
+          rsync -a mod/ dist/
+
+          archive="${{ github.event.repository.name }}-${{ github.ref_name }}.zip"
+
+          (cd dist && zip -r "../$archive" .)
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: default
+          path: "*.zip"
+
   detect-overlays:
     runs-on: ubuntu-latest
     outputs:
       overlays: ${{ steps.list.outputs.overlays }}
-
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: List overlays
         id: list
@@ -23,17 +44,16 @@ jobs:
           overlays=$(ls -1 overlays/ | jq -R . | jq -sc .)
           echo "overlays=$overlays" >> "$GITHUB_OUTPUT"
 
-  build-assets:
+  build-overlays:
     needs: detect-overlays
     runs-on: ubuntu-latest
-
     strategy:
-      fail-fast: false
       matrix:
         overlay: ${{ fromJson(needs.detect-overlays.outputs.overlays) }}
-
+      fail-fast: false
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Build archive
         run: |
@@ -43,10 +63,7 @@ jobs:
 
           archive="${{ github.event.repository.name }}-${{ github.ref_name }}-${{ matrix.overlay }}.zip"
 
-          (
-            cd dist
-            zip -r "../$archive" .
-          )
+          (cd dist && zip -r "../$archive" .)
 
       - name: Upload archive
         uses: actions/upload-artifact@v4
@@ -55,10 +72,25 @@ jobs:
           path: "*.zip"
 
   release:
-    needs: build-assets
+    needs: [build-default, build-overlays]
     runs-on: ubuntu-latest
-
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate changelog
+        run: |
+          PREV_TAG=$(git tag --sort=-creatordate | grep -v "^${{ github.ref_name }}$" | head -n1)
+          if [ -n "$PREV_TAG" ]; then
+            echo "## Commits since $PREV_TAG" > CHANGELOG.md
+            git log "$PREV_TAG..${{ github.ref_name }}" --pretty=format:"- %s (%h)" >> CHANGELOG.md
+          else
+            echo "## Commits" > CHANGELOG.md
+            git log --pretty=format:"- %s (%h)" >> CHANGELOG.md
+          fi
+
       - name: Download archives
         uses: actions/download-artifact@v4
         with:
@@ -69,3 +101,4 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: artifacts/*.zip
+          body_path: CHANGELOG.md

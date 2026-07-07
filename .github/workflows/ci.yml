@@ -10,12 +10,30 @@ on:
       - 'overlays/**'
 
 jobs:
+  build-default:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build default mod
+        run: |
+          mkdir -p dist/
+          rsync -a mod/ dist/
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ github.event.repository.name }}-${{ github.sha }}
+          path: dist/
+
   detect-overlays:
     runs-on: ubuntu-latest
     outputs:
       overlays: ${{ steps.list.outputs.overlays }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: List overlays
         id: list
@@ -23,19 +41,18 @@ jobs:
           overlays=$(ls -1 overlays/ | jq -R . | jq -sc .)
           echo "overlays=$overlays" >> "$GITHUB_OUTPUT"
 
-  build-mods:
+  build-overlays:
     needs: detect-overlays
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
         overlay: ${{ fromJson(needs.detect-overlays.outputs.overlays) }}
       fail-fast: false
-
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Merge mod + overlay
+      - name: Merge default mod + overlay
         run: |
           mkdir -p dist/
           rsync -a mod/ dist/
