@@ -6,7 +6,7 @@ var research_list = Object.entries(research_minimumResearchTime);
 
 function research_eventStartLevel()
 {
-	if (TECH_OFFSET === null)
+	if (TECH_TIME === null)
 	{
 		for (let player = 0; player < maxPlayers; player++)
 		{
@@ -20,14 +20,14 @@ function research_eventStartLevel()
 			enableResearch("R-Sys-Sensor-Turret01", player);
 			enableResearch("R-Wpn-MG1Mk1", player);
 			enableResearch("R-Sys-Engineering01", player);
-			research_completeOnTime(TECH_OFFSET, player);
+			research_completeOnTime(TECH_TIME, player);
 		}
 	}
 }
 
 function research_eventResearched(research, structure, player)
 {
-	if (player === ENEMY || TECH_OFFSET === null)
+	if (player === ENEMY || TECH_TIME === null)
 	{
 		return;
 	}
@@ -36,7 +36,7 @@ function research_eventResearched(research, structure, player)
 	if (time)
 	{
 		research_completeOnTime(time, ENEMY);
-		TECH_TIME = Math.max(TECH_TIME, TECH_OFFSET + time);
+		TECH_TIME = Math.max(TECH_TIME, time);
 	}
 }
 

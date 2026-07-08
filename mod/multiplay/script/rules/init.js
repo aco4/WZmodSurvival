@@ -3,7 +3,6 @@ receiveAllEvents(true);
 // Include global variables
 include("SurvivalMod/ENEMY.js");
 include("SurvivalMod/TEMPLATES.js");
-include("SurvivalMod/TECH_OFFSET.js");
 include("SurvivalMod/TECH_TIME.js");
 
 // Include rest
