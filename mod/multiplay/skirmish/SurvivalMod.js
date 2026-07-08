@@ -10,7 +10,13 @@ function tick()
 	{
 		if (player !== me)
 		{
-			enumStruct(player).forEach(s => targets.push(s));
+			for (const structure of enumStruct(player))
+			{
+				if (structure.stattype !== RESOURCE_EXTRACTOR) // ignore oils; units can get stuck on them
+				{
+					targets.push(structure);
+				}
+			}
 		}
 	}
 	if (targets.length === 0)
