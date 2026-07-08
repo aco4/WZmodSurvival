@@ -15,7 +15,17 @@ function tick()
 	}
 	if (targets.length === 0)
 	{
-		return;
+		for (let player = 0; player < maxPlayers; player++)
+		{
+			if (player !== me)
+			{
+				enumDroid(player, DROID_CONSTRUCT).forEach(s => targets.push(s));
+			}
+		}
+		if (targets.length === 0)
+		{
+			return;
+		}
 	}
 
 	enumDroid().forEach(droid =>
