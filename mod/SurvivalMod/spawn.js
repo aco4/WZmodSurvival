@@ -43,7 +43,7 @@ function spawn_tick()
 	}
 
 	// Halve the calculated team power, for balance reasons
-	powerAllies = powerAllies >> 1;
+	powerAllies = Math.floor(spawn_difficulty * powerAllies);
 
 	// Slowly increase difficulty over time
 	const numOils = derrickPositions.length;
@@ -77,6 +77,18 @@ function spawn_tick()
 
 	queue("spawn_tick", 60 * 1000);
 }
+
+const spawn_difficulty = (() =>
+{
+	switch (playerData[ENEMY].difficulty)
+	{
+		case INSANE: return 0.9;
+		case HARD  : return 0.7;
+		case MEDIUM: return 0.5;
+		case EASY  : return 0.3;
+		default    : return 0.3;
+	}
+})();
 
 var spawn_positions = (() => {
 	const startTiles = [];
