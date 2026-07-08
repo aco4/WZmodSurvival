@@ -34,7 +34,7 @@ function tick()
 			else if (droid.propulsion === "hover01")
 			{
 				const target = targets[Math.floor(Math.random() * targets.length)];
-				orderDroidLoc(droid, DORDER_ATTACK, target.x, target.y);
+				orderDroidObj(droid, DORDER_ATTACK, target);
 			}
 			else
 			{
