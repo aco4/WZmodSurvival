@@ -12,8 +12,6 @@ function spawn_tick()
 		return;
 	}
 
-	const minute = Math.min(TEMPLATES.length, Math.floor(TECH_TIME / 60));
-
 	// Calculate team power
 	let powerAllies = 0;
 	for (let player = 0; player < maxPlayers; player++)
@@ -44,6 +42,16 @@ function spawn_tick()
 		}
 	}
 
+	// Halve the calculated team power, for balance reasons
+	powerAllies = powerAllies >> 1;
+
+	// Slowly increase difficulty over time
+	const numOils = derrickPositions.length;
+	const numPlayers = maxPlayers - 1;
+	const maxOils = 40 * numPlayers; // Power is limited by max power generator count (10 * 4)
+	const k = Math.min(numOils, maxOils);
+	powerAllies += (k * gameTime) >> 16;
+
 	// Calculate enemy power
 	let powerEnemy = 0;
 	for (const droid of enumDroid(ENEMY))
@@ -52,6 +60,7 @@ function spawn_tick()
 	}
 
 	// Add enemies until the power exceeds the human players
+	const minute = TECH_TIME === null ? TEMPLATES.length : Math.min(TEMPLATES.length, Math.floor(TECH_TIME / 60));
 	while (powerEnemy < powerAllies)
 	{
 		const template = TEMPLATES[syncRandom(minute)];
