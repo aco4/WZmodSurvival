@@ -765,34 +765,12 @@ function handleSidebarClick(type, item, isRes) {
 function buildExport() {
   const lines = ta.value.split('\n');
 
-  // Gather all valid (active + commented) rows for column width calculation
-  const allResolved = [];
-  lines.forEach(raw => {
-    const info = getLineInfo(raw);
-    if ((info.type === 'text' || info.type === 'comment') && info.resolved) {
-      allResolved.push(info.resolved);
-    }
-  });
-
-  let wT = 2, wB = 2, wP = 2, wN = 2;
-  allResolved.forEach((r, idx) => {
-    wT = Math.max(wT, r.turrets.map(x => `"${x.id}"`).join(', ').length);
-    wB = Math.max(wB, r.body.id.length);
-    wP = Math.max(wP, r.propulsion.id.length);
-  });
-  lines.forEach(raw => {
-    const info = getLineInfo(raw);
-    if ((info.type === 'text' || info.type === 'comment') && info.resolved) {
-      wN = Math.max(wN, info.name.length);
-    }
-  });
-
   const fmtRow = (r, name) => {
-    const t = `[${r.turrets.map(x => `"${x.id}"`).join(', ').padEnd(wT)}]`;
-    const b = `"${r.body.id}"`.padEnd(wB + 2);
-    const p = `"${r.propulsion.id}"`.padEnd(wP + 2);
-    const n = `"${name}"`.padEnd(wN + 3);
-    return `{ turrets: ${t}, body: ${b}, propulsion: ${p}, name: ${n}}`;
+    const t = `[${r.turrets.map(x => `"${x.id}"`).join(', ')}]`;
+    const b = `"${r.body.id}"`;
+    const p = `"${r.propulsion.id}"`;
+    const n = `"${name}"`;
+    return `{ turrets: ${t}, body: ${b}, propulsion: ${p}, name: ${n} }`;
   };
 
   let activeCount = 0, commentCount = 0, nullCount = 0, skipped = 0;
