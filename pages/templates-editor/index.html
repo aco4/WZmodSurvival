@@ -949,19 +949,7 @@ function doImport() {
 
   updateCurrentLine();
 
-  // Brief success note before closing
-  const note = document.getElementById('importNote');
-  note.className = 'modal-note';
-  const active   = lines.filter(l => l !== 'null' && !l.startsWith('//')).length;
-  const commented = lines.filter(l => l.startsWith('//')).length;
-  const nulls     = lines.filter(l => l === 'null').length;
-  const parts = [];
-  if (active)    parts.push(`${active} active`);
-  if (commented) parts.push(`${commented} commented`);
-  if (nulls)     parts.push(`${nulls} null`);
-  note.textContent = `Imported ${parts.join(' · ')}. Closing…`;
-
-  setTimeout(closeImport, 900);
+  closeImport();
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
