@@ -20,7 +20,7 @@
   --ln-col:   #2e2e2e;
   --lh:       22px;
   --vpad:     10px;
-  --gw:       56px;
+  --gw:       68px;
   --c-ok:     #4ec9b0;
   --c-err:    #c04040;
   --c-cmt:    #5a7a5a;   /* comment green-grey */
@@ -518,6 +518,12 @@ function drawHighlights() {
 
 const gc = document.getElementById('gc');
 
+function formatGutterTime(minutes) {
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  return h > 0 ? `${h}:${String(m).padStart(2, '0')}:00` : `${m}:00`;
+}
+
 function rebuildGutter() {
   const lines = ta.value.split('\n');
   const frag  = document.createDocumentFragment();
@@ -530,7 +536,7 @@ function rebuildGutter() {
     const invalid = info.type === 'text' && !info.resolved;
     const isComment = info.type === 'comment';
 
-    const lineNum = isComment ? '' : `${count}:00`;
+    const lineNum = isComment ? '' : formatGutterTime(count);
     if (!isComment) count++;
 
     const div = document.createElement('div');
