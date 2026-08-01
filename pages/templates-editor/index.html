@@ -220,7 +220,7 @@ body {
                   autocorrect="off" autocapitalize="off"
                   placeholder='Paste TEMPLATES.js here, or type one template per line:
 { turrets: ["MG1Mk1"], body: "Body1REC", propulsion: "wheeled01" },
-Use // to comment out a line — use null for a spacer entry'></textarea>
+Use // to comment out a line'></textarea>
       </div>
     </div>
   </div>
@@ -355,14 +355,13 @@ function renderDataStatus(kind) {
 const anyDataLoaded = () => KINDS.some(k => DATA[k].names);
 
 // ── Line classification ───────────────────────────────────────────────────────
-// type: 'empty' | 'frame' | 'null' | 'comment' | 'template'
+// type: 'empty' | 'frame' | 'comment' | 'template'
 
 function classifyLine(raw) {
   const t = raw.trim();
   if (!t)                                  return { type: 'empty',   body: '' };
   if (/^const\s+TEMPLATES\s*=\s*\[\s*$/.test(t)) return { type: 'frame', body: t };
   if (/^\]\s*;?\s*$/.test(t))              return { type: 'frame',   body: t };
-  if (/^null\s*,?\s*$/.test(t))            return { type: 'null',    body: t };
   if (t.startsWith('//'))                  return { type: 'comment', body: t.slice(2).trim() };
   return                                          { type: 'template', body: t };
 }
@@ -517,8 +516,6 @@ function renderLine(raw, info, col) {
     html = span('t-err', raw);
   } else if (info.type === 'frame') {
     html = span('t-frame', raw);
-  } else if (info.type === 'null') {
-    html = span('t-null', raw);
   } else if (info.type === 'comment') {
     const i = raw.indexOf('//');
     html = esc(raw.slice(0, i))
@@ -565,7 +562,7 @@ function render() {
 
     ml.push(renderLine(raw, info, col));
 
-    const counts = info.type === 'template' || info.type === 'null';
+    const counts = info.type === 'template';
     const num    = counts ? formatGutterTime(count) : '';
     if (counts) count++;
 
