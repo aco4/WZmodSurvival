@@ -2,31 +2,25 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>WZ2100 Template Designer</title>
-<script src="weapons.js"></script>
-<script src="body.js"></script>
-<script src="propulsion.js"></script>
+<title>WZ2100 Templates Editor</title>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
   --bg:       #0f0f0f;
-  --bg2:      #131313;
-  --bg3:      #181818;
-  --border:   #1e1e1e;
-  --border2:  #2a2a2a;
-  --muted:    #444;
-  --text:     #bdbdbd;
-  --ln-col:   #2e2e2e;
+  --bg2:      #161616;
+  --border:   #262626;
+  --border2:  #333;
+  --muted:    #7d7d7d;
+  --text:     #e4e4e4;
+  --ln-col:   #4f4f4f;
   --lh:       22px;
   --vpad:     10px;
   --gw:       68px;
-  --c-ok:     #4ec9b0;
-  --c-err:    #c04040;
-  --c-cmt:    #5a7a5a;   /* comment green-grey */
-  --c-null:   #6a6a9a;   /* null muted indigo  */
-  --c-name:   #dcdcaa;
-  --c-cmttxt: #608060;
+  --c-ok:     #29e0b4;
+  --c-err:    #ff5555;
+  --c-cmt:    #6a9955;
+  --c-hl:     rgba(255,255,255,.055);
 }
 
 html, body { height: 100%; overflow: hidden; }
@@ -40,47 +34,37 @@ body {
   flex-direction: column;
 }
 
-/* ── Header ── */
-header {
-  display: flex; align-items: center; gap: 14px;
-  padding: 6px 14px;
-  background: var(--bg3); border-bottom: 1px solid var(--border2);
-  flex-shrink: 0; user-select: none;
+/* ── Tabs ── */
+.tabs {
+  display: flex; flex-shrink: 0; user-select: none;
+  background: var(--bg2); border-bottom: 1px solid var(--border2);
 }
-.logo { font-size: 11px; color: #484848; letter-spacing: .14em; white-space: nowrap; }
-.logo b { color: #767676; }
-.ds { display: flex; gap: 12px; flex: 1; font-size: 11px; }
-.dsi { color: var(--muted); }
-.dsi.ok  { color: var(--c-ok); }
-.dsi.err { color: var(--c-err); }
-.hint { font-size: 11px; color: var(--muted); white-space: nowrap; }
-.hint kbd {
-  background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 2px;
-  padding: 0 4px; font-size: 10px; font-family: inherit; color: #4a4a4a;
+.tab {
+  padding: 5px 16px; cursor: pointer;
+  font-family: inherit; font-size: 11px; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--muted); background: none; border: none;
+  border-right: 1px solid var(--border);
+  border-bottom: 2px solid transparent;
+  display: flex; align-items: center; gap: 7px;
+  transition: color .1s, background .1s;
 }
-.btn-imp {
-  background: #0d1620; color: #4a7a9e; border: 1px solid #162030;
-  padding: 4px 12px; border-radius: 2px; cursor: pointer;
-  font-family: inherit; font-size: 11px; white-space: nowrap;
-  transition: background .1s, color .1s;
-}
-.btn-imp:hover { background: #101828; color: #6aaace; }
-.btn-exp {
-  background: #0d180f; color: #527a5e; border: 1px solid #182a1e;
-  padding: 4px 12px; border-radius: 2px; cursor: pointer;
-  font-family: inherit; font-size: 11px; white-space: nowrap;
-  transition: background .1s, color .1s;
-}
-.btn-exp:hover { background: #101e14; color: #7ec090; }
+.tab:hover { color: #c8c8c8; background: rgba(255,255,255,.05); }
+.tab.active { color: #fff; background: var(--bg); border-bottom-color: var(--c-ok); }
+.tab-badge { font-size: 11px; letter-spacing: 0; color: #5a5a5a; text-transform: none; }
+.tab.active .tab-badge { color: var(--muted); }
+.tab-badge.ok  { color: #199e80; }
+.tab.active .tab-badge.ok { color: var(--c-ok); }
+.tab-badge.err { color: #b03838; }
+.tab.active .tab-badge.err { color: var(--c-err); }
 
 /* ── Workspace ── */
 .workspace { flex: 1; display: flex; overflow: hidden; }
+.pane { flex: 1; display: none; overflow: hidden; }
+.pane.active { display: flex; }
 
 /* ── Editor ── */
-.editor-pane { flex: 1; display: flex; overflow: hidden; border-right: 1px solid var(--border2); }
 .editor-wrap { flex: 1; display: flex; overflow: hidden; position: relative; }
 
-/* Gutter */
 .gutter-outer {
   width: var(--gw); flex-shrink: 0; overflow: hidden;
   background: var(--bg2); border-right: 1px solid var(--border);
@@ -95,428 +79,466 @@ header {
   font-size: 11px; color: var(--ln-col);
   user-select: none;
 }
-.gl.active .gnum { color: #5a5a5a; }
+.gl.active { background: var(--c-hl); }
+.gl.active .gnum { color: #e4e4e4; }
 .gdot {
   width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0;
   background: transparent; transition: background .12s;
 }
-.gl.err .gdot { background: var(--c-err); opacity: .75; }
+.gl.err .gdot { background: var(--c-err); }
 
-/* Textarea overlay — positioned so we can layer the syntax highlight canvas behind */
 .ta-wrap { flex: 1; position: relative; overflow: hidden; }
 
-/* The real textarea (transparent text so we see canvas behind) */
+/* Text metrics shared by the textarea and the mirror behind it. These MUST stay
+   identical — every one of them shifts glyph positions, and the caret lives in
+   one element while the colours live in the other. One rule, two selectors, so
+   they cannot drift apart. */
+#ta, .ml {
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 13px;
+  font-weight: 400;
+  font-variant-ligatures: none;
+  letter-spacing: normal;
+  word-spacing: normal;
+  line-height: var(--lh);
+  tab-size: 4;
+  white-space: pre;
+}
+
+/* Same padding on both, so their coordinate systems share an origin. */
+#ta, #mirror { padding: var(--vpad) 24px var(--vpad) 14px; }
+
 #ta {
   position: absolute; inset: 0;
   background: transparent;
   border: none; outline: none;
-  color: transparent;                  /* hide native text; canvas draws it */
+  color: transparent;                  /* hide native text; the mirror shows it */
   caret-color: #d4d4d4;
-  font-family: 'Consolas', 'Courier New', monospace;
-  font-size: 13px;
-  line-height: var(--lh);
-  padding: var(--vpad) 24px var(--vpad) 14px;
   resize: none;
   overflow: auto;
-  white-space: pre;
+  /* Past the scroll limits the browser rubber-bands this element's contents —
+     caret and selection with them — while clamping scrollTop, so no scroll
+     event fires and the mirror and gutter have nothing to follow. There is no
+     value to read during the bounce, so suppress the bounce. */
+  overscroll-behavior: none;
   word-wrap: normal;
   z-index: 2;
-  /* keep selection visible */
-  selection-color: rgba(255,255,255,.15);
 }
-#ta::selection { background: rgba(200,200,255,.18); color: transparent; }
+#ta::selection { background: rgba(90,140,220,.35); color: transparent; }
 
-/* Syntax highlight canvas */
-#hlCanvas {
-  position: absolute; inset: 0;
-  pointer-events: none;
+#mirror {
+  position: absolute; top: 0; left: 0;
+  pointer-events: none; user-select: none;
+  will-change: transform;
   z-index: 1;
 }
 
-/* ── Sidebar ── */
-.sidebar {
-  width: 280px; flex-shrink: 0;
-  display: flex; flex-direction: column;
-  overflow: hidden; background: var(--bg2);
+/* Caret-line band. Deliberately not part of the mirror: it spans the pane
+   rather than the text, so it must not travel with the horizontal scroll. */
+#hl {
+  position: absolute; left: 0; right: 0; top: 0; height: var(--lh);
+  background: var(--c-hl);
+  pointer-events: none;
+  will-change: transform;
+  z-index: 0;
 }
+.ml { height: var(--lh); }
 
-.sp { flex: 1; display: flex; flex-direction: column; overflow: hidden; border-bottom: 1px solid var(--border2); }
-.sp:last-child { border-bottom: none; }
+/* Token colours */
+.t-punct   { color: #9a9a9a; }
+.t-key     { color: #4fc1ff; }
+.t-id      { color: #f5d76e; }
+.t-null    { color: #c586ff; }
+.t-frame   { color: #7a7a7a; }
+.t-slash   { color: #6a9955; }
+.t-comment { color: #7fb069; }
+.t-err     { color: #ff6b6b; }
 
-.sp-head {
-  flex-shrink: 0; display: flex; align-items: baseline; gap: 6px;
-  padding: 5px 10px 4px;
-  background: var(--bg3); border-bottom: 1px solid var(--border);
+/* Derived name / error message, appended after the line's real text. It sits in
+   normal flow, so nothing has to measure where the line ended — render() only
+   has to say how many columns of gap put it in the shared trailer column. */
+.trailer          { margin-left: 3ch; }
+.trailer.ok       { color: var(--c-ok); }
+.trailer.cmt      { color: #1a9b7c; }
+.trailer.err      { color: var(--c-err); }
+
+/* ── Data panes ── */
+.data-pane { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.data-bar {
+  flex-shrink: 0; display: flex; align-items: center; gap: 12px;
+  padding: 6px 14px; background: var(--bg2); border-bottom: 1px solid var(--border);
   user-select: none;
 }
-.sp-label { font-size: 9px; text-transform: uppercase; letter-spacing: .16em; color: var(--muted); white-space: nowrap; }
-.sp-cur {
-  font-size: 11px; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-  color: var(--muted); opacity: 0; transition: opacity .15s, color .15s;
+.data-bar.hidden { display: none; }
+.data-msg {
+  flex: 1; font-size: 11px; color: var(--c-err);
+  overflow-wrap: anywhere;             /* wrap the long url rather than clip it */
 }
-.sp-cur.show { opacity: 1; }
-.sp-cur.ok   { color: var(--c-ok); }
-.sp-cur.cmt  { color: var(--c-cmt); }
-
-.sp-search {
-  background: transparent; border: none; border-bottom: 1px solid var(--border);
-  color: var(--text); padding: 4px 10px;
-  font-family: inherit; font-size: 12px; outline: none; flex-shrink: 0;
-  transition: border-color .1s;
+.data-src {
+  color: #4aa8d8; text-decoration: none;
+  transition: color .1s;
 }
-.sp-search:focus { border-bottom-color: #253825; }
-
-.sp-list { overflow-y: auto; flex: 1; }
-
-.si {
-  display: flex; align-items: baseline; gap: 8px;
-  padding: 3px 10px 3px 12px;
-  cursor: pointer;
-  border-left: 2px solid transparent;
-  transition: background .07s, border-color .07s;
+.data-src:hover { color: var(--c-ok); text-decoration: underline; }
+.data-pane textarea {
+  flex: 1; background: var(--bg); border: none; outline: none; color: #c8c8c8;
+  font-family: 'Consolas', 'Courier New', monospace; font-size: 12px;
+  line-height: 1.55; padding: 10px 14px; resize: none; white-space: pre;
 }
-.si:hover { background: rgba(255,255,255,.025); }
-.si.res {
-  background: rgba(78,201,176,.055);
-  border-left-color: var(--c-ok);
-}
-.si.res-cmt {
-  background: rgba(90,122,90,.07);
-  border-left-color: var(--c-cmt);
-}
-.si.res:hover, .si.res-cmt:hover { background: rgba(78,201,176,.1); }
-
-.si-name {
-  color: var(--text); font-size: 12px; flex: 1;
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-}
-.si-id { color: #242424; font-size: 10px; white-space: nowrap; flex-shrink: 0; transition: color .07s; }
-.si:hover .si-id { color: var(--muted); }
-.si.res .si-id, .si.res-cmt .si-id { color: #2c4a3a; }
-
-.sp-empty { padding: 8px 10px; font-size: 11px; color: var(--muted); }
-
-/* ── Legend ── */
-.legend {
-  flex-shrink: 0; display: flex; align-items: center; gap: 14px;
-  padding: 5px 10px; border-top: 1px solid var(--border);
-  background: var(--bg3); font-size: 10px; color: var(--muted);
-  user-select: none;
-}
-.leg-item { display: flex; align-items: center; gap: 5px; }
-.leg-dot  { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
 
 /* Scrollbars */
 ::-webkit-scrollbar       { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #252525; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #333; }
-
-/* ── Export modal ── */
-.modal-bg {
-  position: fixed; inset: 0; background: rgba(0,0,0,.85);
-  z-index: 500; display: none; align-items: center; justify-content: center;
-}
-.modal-bg.open { display: flex; }
-.modal {
-  background: var(--bg3); border: 1px solid var(--border2); border-radius: 3px;
-  padding: 16px; width: 960px; max-width: 96vw; max-height: 88vh;
-  display: flex; flex-direction: column; gap: 10px;
-}
-.modal-title { font-size: 11px; color: #484848; letter-spacing: .1em; text-transform: uppercase; }
-.modal textarea {
-  background: var(--bg); border: 1px solid var(--border2); color: var(--text);
-  padding: 10px 12px; border-radius: 2px;
-  font-family: 'Consolas', 'Courier New', monospace; font-size: 12px;
-  resize: none; flex: 1; min-height: 280px; outline: none; line-height: 1.6;
-}
-.modal-row { display: flex; gap: 8px; align-items: center; }
-.modal-note { font-size: 11px; color: var(--muted); flex: 1; }
-.modal-note.warn { color: #8a6030; }
-.mbtn {
-  padding: 5px 13px; border-radius: 2px; cursor: pointer;
-  font-family: inherit; font-size: 12px; border: 1px solid;
-  transition: background .1s; white-space: nowrap;
-}
-.mbtn-copy { background: #0d1e30; color: #6aaccc; border-color: #1a3a50; }
-.mbtn-copy:hover { background: #101e38; }
-.mbtn-copy.ok { color: var(--c-ok); border-color: #1a4a2a; background: #0d1e16; }
-.mbtn-dl   { background: #0d1e14; color: #6aaa7a; border-color: #1a3a24; }
-.mbtn-dl:hover { background: #101e18; }
-.mbtn-close { background: none; color: var(--muted); border-color: var(--border2); margin-left: auto; }
-.mbtn-close:hover { color: var(--text); }
+::-webkit-scrollbar-thumb { background: #3d3d3d; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #565656; }
 </style>
 </head>
 <body>
 
-<header>
-  <div class="logo">WZ2100 <b>Template Designer</b></div>
-  <div class="ds" id="ds"></div>
-  <div class="hint">
-    <kbd>//</kbd> comment &nbsp;·&nbsp;
-    <kbd>null</kbd> spacer &nbsp;·&nbsp;
-    sidebar tracks cursor
-  </div>
-  <button class="btn-imp" onclick="openImport()">Import TEMPLATES.js</button>
-  <button class="btn-exp" onclick="openExport()">Export TEMPLATES.js</button>
-</header>
+<div class="tabs" id="tabs">
+  <button class="tab active" data-tab="editor" onclick="switchTab('editor')">Editor</button>
+  <button class="tab" data-tab="weapons" onclick="switchTab('weapons')">
+    Weapons <span class="tab-badge err" id="badge-weapons">✗</span>
+  </button>
+  <button class="tab" data-tab="body" onclick="switchTab('body')">
+    Body <span class="tab-badge err" id="badge-body">✗</span>
+  </button>
+  <button class="tab" data-tab="propulsion" onclick="switchTab('propulsion')">
+    Propulsion <span class="tab-badge err" id="badge-propulsion">✗</span>
+  </button>
+</div>
 
 <div class="workspace">
 
   <!-- ── Editor ── -->
-  <div class="editor-pane">
+  <div class="pane active" id="pane-editor">
     <div class="editor-wrap">
       <div class="gutter-outer"><div id="gc"></div></div>
       <div class="ta-wrap">
-        <canvas id="hlCanvas"></canvas>
+        <div id="hl" aria-hidden="true"></div>
+        <div id="mirror" aria-hidden="true"></div>
         <textarea id="ta" spellcheck="false" autocomplete="off"
                   autocorrect="off" autocapitalize="off"
-                  placeholder="Type a template name on each line…
-Use // to comment out a line
-Use null for a spacer entry"></textarea>
+                  placeholder='Paste TEMPLATES.js here, or type one template per line:
+{ turrets: ["MG1Mk1"], body: "Body1REC", propulsion: "wheeled01" },
+Use // to comment out a line — use null for a spacer entry'></textarea>
       </div>
     </div>
   </div>
 
-  <!-- ── Sidebar ── -->
-  <div class="sidebar">
-
-    <div class="sp">
-      <div class="sp-head">
-        <span class="sp-label">Weapon</span>
-        <span class="sp-cur" id="curWeapon"></span>
+  <!-- ── Data panes ── -->
+  <div class="pane" id="pane-weapons">
+    <div class="data-pane">
+      <div class="data-bar" id="bar-weapons">
+        <span class="data-msg" id="msg-weapons"></span>
       </div>
-      <input class="sp-search" id="sWeapon" placeholder="Search…"
-             oninput="renderPanel('weapon')" autocomplete="off" spellcheck="false">
-      <div class="sp-list" id="lWeapon"></div>
-    </div>
-
-    <div class="sp">
-      <div class="sp-head">
-        <span class="sp-label">Body</span>
-        <span class="sp-cur" id="curBody"></span>
-      </div>
-      <input class="sp-search" id="sBody" placeholder="Search…"
-             oninput="renderPanel('body')" autocomplete="off" spellcheck="false">
-      <div class="sp-list" id="lBody"></div>
-    </div>
-
-    <div class="sp">
-      <div class="sp-head">
-        <span class="sp-label">Propulsion</span>
-        <span class="sp-cur" id="curProp"></span>
-      </div>
-      <input class="sp-search" id="sProp" placeholder="Search…"
-             oninput="renderPanel('prop')" autocomplete="off" spellcheck="false">
-      <div class="sp-list" id="lProp"></div>
-    </div>
-
-
-
-  </div>
-</div>
-
-<!-- Import modal -->
-<div class="modal-bg" id="importModal" onclick="if(event.target===this)closeImport()">
-  <div class="modal">
-    <div class="modal-title">Import TEMPLATES.js</div>
-    <textarea id="importText" spellcheck="false"
-              placeholder="Paste your TEMPLATES.js content here…"></textarea>
-    <div class="modal-row">
-      <span class="modal-note" id="importNote">Paste a TEMPLATES array and click Import.</span>
-      <div style="display:flex;gap:6px;align-items:center;margin-left:auto">
-        <label style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);cursor:pointer;white-space:nowrap">
-          <input type="checkbox" id="importAppend" style="accent-color:var(--c-ok)">
-          Append to existing
-        </label>
-        <button class="mbtn mbtn-copy" id="importBtn" onclick="doImport()">Import</button>
-        <button class="mbtn mbtn-close" onclick="closeImport()">Close</button>
-      </div>
+      <textarea id="data-weapons" spellcheck="false" autocomplete="off"
+                placeholder='{ "MG1Mk1": { "name": "Machinegun", ... }, ... }'></textarea>
     </div>
   </div>
-</div>
 
-<!-- Export modal -->
-<div class="modal-bg" id="exportModal" onclick="if(event.target===this)closeExport()">
-  <div class="modal">
-    <div class="modal-title">TEMPLATES.js</div>
-    <textarea id="exportText" readonly spellcheck="false"></textarea>
-    <div class="modal-row">
-      <span class="modal-note" id="exportNote"></span>
-      <button class="mbtn mbtn-copy" id="copyBtn" onclick="copyExport()">Copy to clipboard</button>
-      <button class="mbtn mbtn-dl" onclick="dlExport()">Download</button>
-      <button class="mbtn mbtn-close" onclick="closeExport()">Close</button>
+  <div class="pane" id="pane-body">
+    <div class="data-pane">
+      <div class="data-bar" id="bar-body">
+        <span class="data-msg" id="msg-body"></span>
+      </div>
+      <textarea id="data-body" spellcheck="false" autocomplete="off"
+                placeholder='{ "Body1REC": { "name": "Viper", ... }, ... }'></textarea>
     </div>
   </div>
+
+  <div class="pane" id="pane-propulsion">
+    <div class="data-pane">
+      <div class="data-bar" id="bar-propulsion">
+        <span class="data-msg" id="msg-propulsion"></span>
+      </div>
+      <textarea id="data-propulsion" spellcheck="false" autocomplete="off"
+                placeholder='{ "wheeled01": { "name": "Wheels", ... }, ... }'></textarea>
+    </div>
+  </div>
+
 </div>
 
 <script>
 'use strict';
 
-// ── Data ──────────────────────────────────────────────────────────────────────
+// ── Stat data (pasted by the user, one tab each) ──────────────────────────────
 
-function extractItems(raw) {
-  if (!raw || typeof raw !== 'object') return null;
-  return Object.entries(raw)
-    .map(([key, v]) => ({ id: v.id ?? key, name: v.name ?? key }))
-    .filter(x => x.id && x.name)
-    .sort((a, b) => a.name.localeCompare(b.name));
+const KINDS = ['weapons', 'body', 'propulsion'];
+const LS = { editor: 'wz.tpl.editor', weapons: 'wz.tpl.weapons', body: 'wz.tpl.body', propulsion: 'wz.tpl.propulsion' };
+
+const SRC_BASE = 'https://raw.githubusercontent.com/Warzone2100/warzone2100/refs/heads/master/data/mp/stats/';
+const srcUrl = (kind) => SRC_BASE + kind + '.json';
+
+// kind -> { names: {id: name}, error }   — names and error are exclusive
+const DATA = {
+  weapons:    { names: null, error: 'Missing data' },
+  body:       { names: null, error: 'Missing data' },
+  propulsion: { names: null, error: 'Missing data' },
+};
+
+// Accepts a bare JSON object, or an assignment like `WEAPONS_DATA = { … };`
+function parseStats(src) {
+  const t = src.trim();
+  if (!t) return { names: null, error: 'Missing data' };
+
+  const start = t.indexOf('{');
+  const end   = t.lastIndexOf('}');
+  if (start < 0 || end < start) return { names: null, error: 'No JSON object found' };
+
+  let obj;
+  try {
+    obj = JSON.parse(t.slice(start, end + 1));
+  } catch (e) {
+    return { names: null, error: 'Invalid JSON — ' + e.message };
+  }
+  if (!obj || typeof obj !== 'object' || Array.isArray(obj))
+    return { names: null, error: 'Expected an object keyed by ID' };
+
+  const names = {};
+  let n = 0;
+  for (const [key, v] of Object.entries(obj)) {
+    const id   = (v && typeof v === 'object' && v.id)   ? v.id   : key;
+    const name = (v && typeof v === 'object' && v.name) ? v.name : null;
+    if (!name) continue;
+    names[id] = name;
+    n++;
+  }
+  if (!n) return { names: null, error: 'No entries with a "name" field' };
+  return { names, error: '' };
 }
 
-const WEAPONS = extractItems(typeof WEAPONS_DATA    !== 'undefined' ? WEAPONS_DATA    : null);
-const BODIES  = extractItems(typeof BODY_DATA       !== 'undefined' ? BODY_DATA       : null);
-const PROPS   = extractItems(typeof PROPULSION_DATA !== 'undefined' ? PROPULSION_DATA : null);
+// The editor only ever reads `name`, so a pasted stat file is boiled down to that
+function condensedSource(names) {
+  const rows = Object.entries(names)
+    .map(([id, name]) => `  ${JSON.stringify(id)}: { "name": ${JSON.stringify(name)} }`);
+  return '{\n' + rows.join(',\n') + '\n}\n';
+}
 
-(function() {
-  const el = document.getElementById('ds');
-  const f  = (n, arr) => `<span class="dsi ${arr ? 'ok' : 'err'}">${arr ? arr.length : '!'} ${n}</span>`;
-  el.innerHTML = f('weapons', WEAPONS) + f('bodies', BODIES) + f('propulsions', PROPS);
-})();
+function loadData(kind) {
+  const src = document.getElementById('data-' + kind).value;
+  DATA[kind] = parseStats(src);
+  renderDataStatus(kind);
+}
+
+function condense(kind) {
+  if (!DATA[kind].names) return;   // a failed parse stays put, so it can be read and fixed
+  const el   = document.getElementById('data-' + kind);
+  const next = condensedSource(DATA[kind].names);
+  if (el.value === next) return;
+  el.value = next;
+  el.scrollTop = 0;
+  el.setSelectionRange(0, 0);
+}
+
+function renderDataStatus(kind) {
+  const d     = DATA[kind];
+  const badge = document.getElementById('badge-' + kind);
+  const msg   = document.getElementById('msg-' + kind);
+  const url   = srcUrl(kind);
+
+  // the bar only earns its space while there is an error to report
+  msg.textContent = '';
+  if (d.error) {
+    msg.append(d.error + ': Copy-paste from ');
+    const a = document.createElement('a');
+    a.className = 'data-src';
+    a.href = url; a.target = '_blank'; a.rel = 'noopener';
+    a.textContent = url;
+    msg.append(a);
+  }
+  document.getElementById('bar-' + kind).classList.toggle('hidden', !d.error);
+
+  badge.className   = 'tab-badge ' + (d.error ? 'err' : 'ok');
+  badge.textContent = d.error ? '✗' : '✓';
+}
+
+const anyDataLoaded = () => KINDS.some(k => DATA[k].names);
 
 // ── Line classification ───────────────────────────────────────────────────────
-// type: 'empty' | 'null' | 'comment' | 'text'
+// type: 'empty' | 'frame' | 'null' | 'comment' | 'template'
 
 function classifyLine(raw) {
   const t = raw.trim();
-  if (!t)               return { type: 'empty',   name: '' };
-  if (t === 'null')     return { type: 'null',    name: '' };
-  if (t.startsWith('//')) return { type: 'comment', name: t.slice(2).trim() };
-  return                       { type: 'text',    name: t };
+  if (!t)                                  return { type: 'empty',   body: '' };
+  if (/^const\s+TEMPLATES\s*=\s*\[\s*$/.test(t)) return { type: 'frame', body: t };
+  if (/^\]\s*;?\s*$/.test(t))              return { type: 'frame',   body: t };
+  if (/^null\s*,?\s*$/.test(t))            return { type: 'null',    body: t };
+  if (t.startsWith('//'))                  return { type: 'comment', body: t.slice(2).trim() };
+  return                                          { type: 'template', body: t };
 }
 
-// ── Resolution ────────────────────────────────────────────────────────────────
+// ── Template parsing: search-and-replace, leftovers are an error ──────────────
 
-let resolveCache = {};
+function parseTemplate(src) {
+  let rest = src.trim().replace(/,+\s*$/, '');
 
-function resolve(text) {
-  const t = text.trim();
-  if (t in resolveCache) return resolveCache[t];
-  if (!t || !WEAPONS || !BODIES || !PROPS) { resolveCache[t] = null; return null; }
+  if (!rest.startsWith('{') || !rest.endsWith('}'))
+    return { error: 'not a { … } template' };
+  rest = rest.slice(1, -1);
 
-  const lo = t.toLowerCase();
+  const cut = (rx) => {
+    const m = rest.match(rx);
+    if (!m) return null;
+    rest = rest.slice(0, m.index) + rest.slice(m.index + m[0].length);
+    return m;
+  };
 
-  function findAll(dataset) {
-    return dataset
-      .filter(c => c.name && c.name.length > 1 && lo.includes(c.name.toLowerCase()))
-      .sort((a, b) => b.name.length - a.name.length);
-  }
+  const tm = cut(/turrets\s*:\s*\[([^\]]*)\]/);
+  const bm = cut(/body\s*:\s*"([^"]*)"/);
+  const pm = cut(/propulsion\s*:\s*"([^"]*)"/);
 
-  const bm = findAll(BODIES);
-  const pm = findAll(PROPS);
-  const wm = findAll(WEAPONS);
+  if (!tm) return { error: 'missing turrets' };
+  if (!bm) return { error: 'missing body' };
+  if (!pm) return { error: 'missing propulsion' };
 
-  if (!bm.length || !pm.length || !wm.length) { resolveCache[t] = null; return null; }
+  // Anything left beyond separators is an unrecognised token
+  const leftover = rest.replace(/[,\s]+/g, ' ').trim();
+  if (leftover) return { error: 'unexpected: ' + leftover };
 
-  const body = bm[0];
-  const prop = pm[0];
-  const blo  = body.name.toLowerCase();
-  const plo  = prop.name.toLowerCase();
-
-  const seen = new Set();
   const turrets = [];
-  for (const w of wm) {
-    const wlo = w.name.toLowerCase();
-    if (blo.includes(wlo) || plo.includes(wlo)) continue;
-    if (seen.has(w.id)) continue;
-    if (turrets.some(t2 => t2.name.toLowerCase().includes(wlo))) continue;
-    seen.add(w.id);
-    turrets.push(w);
-  }
-
-  const result = turrets.length ? { turrets, body, propulsion: prop } : null;
-  resolveCache[t] = result;
-  return result;
-}
-
-// Cached per line for current render pass
-function getLineInfo(raw) {
-  const cls = classifyLine(raw);
-  const r   = (cls.type === 'text' || cls.type === 'comment')
-              ? resolve(cls.name) : null;
-  return { ...cls, resolved: r };
-}
-
-// ── Canvas syntax highlighting ────────────────────────────────────────────────
-
-const ta     = document.getElementById('ta');
-const canvas = document.getElementById('hlCanvas');
-const ctx    = canvas.getContext('2d');
-
-const COLORS = {
-  text:    '#dcdcaa',   // template names
-  comment: '#608060',   // // comments
-  null_kw: '#7a7aba',   // null keyword
-  unres:   '#a05050',   // unresolved text
-  empty:   '#dcdcaa',
-};
-
-let devicePR = window.devicePixelRatio || 1;
-let pxLH, pxVpad, pxLpad, pxFont;
-
-function setupCanvas() {
-  devicePR = window.devicePixelRatio || 1;
-  // Measure actual rendered em size from computed style
-  const cs    = getComputedStyle(ta);
-  pxFont      = parseFloat(cs.fontSize);
-  pxLH        = parseFloat(cs.lineHeight);
-  pxVpad      = parseFloat(cs.paddingTop);
-  pxLpad      = parseFloat(cs.paddingLeft);
-
-  const w = ta.clientWidth;
-  const h = ta.clientHeight;
-  canvas.width  = w * devicePR;
-  canvas.height = h * devicePR;
-  canvas.style.width  = w + 'px';
-  canvas.style.height = h + 'px';
-  ctx.scale(devicePR, devicePR);
-  ctx.font = `${pxFont}px Consolas, "Courier New", monospace`;
-}
-
-function drawHighlights() {
-  const w = canvas.width  / devicePR;
-  const h = canvas.height / devicePR;
-  ctx.clearRect(0, 0, w, h);
-
-  const lines    = ta.value.split('\n');
-  const scrollY  = ta.scrollTop;
-  const scrollX  = ta.scrollLeft;
-
-  const firstVis = Math.max(0, Math.floor(scrollY / pxLH) - 1);
-  const lastVis  = Math.min(lines.length - 1, Math.ceil((scrollY + h) / pxLH) + 1);
-
-  ctx.textBaseline = 'alphabetic';
-
-  for (let i = firstVis; i <= lastVis; i++) {
-    const raw   = lines[i];
-    const info  = getLineInfo(raw);
-    const y     = pxVpad + i * pxLH - scrollY;
-    const x     = pxLpad - scrollX;
-    const baseline = y + pxLH * 0.78;  // rough baseline for monospace
-
-    if (!raw.trim()) continue;
-
-    if (info.type === 'comment') {
-      // Draw // in dimmer shade, then the rest
-      ctx.fillStyle = '#3e5c3e';
-      ctx.fillText('//', x, baseline);
-      const slashW = ctx.measureText('//').width;
-      // one space after //
-      const nameX = x + slashW;
-      ctx.fillStyle = info.resolved ? COLORS.comment : '#6a4040';
-      ctx.fillText(' ' + info.name, nameX, baseline);
-    } else if (info.type === 'null') {
-      ctx.fillStyle = COLORS.null_kw;
-      ctx.fillText(raw, x, baseline);
-    } else if (info.type === 'text') {
-      ctx.fillStyle = info.resolved ? COLORS.text : COLORS.unres;
-      ctx.fillText(raw, x, baseline);
+  const inner = tm[1].trim();
+  if (inner) {
+    for (const part of inner.split(',')) {
+      const s = part.trim();
+      if (!s) continue;
+      const q = s.match(/^"([^"]*)"$/);
+      if (!q) return { error: 'bad turret token: ' + s };
+      turrets.push(q[1]);
     }
   }
+  if (!turrets.length) return { error: 'no turrets' };
+
+  const body = bm[1], propulsion = pm[1];
+  if (!body)       return { error: 'empty body id' };
+  if (!propulsion) return { error: 'empty propulsion id' };
+
+  return { turrets, body, propulsion };
 }
 
-// ── Gutter ────────────────────────────────────────────────────────────────────
+// Derive the friendly name: turret(s) + body + propulsion
+function deriveName(tpl) {
+  if (!anyDataLoaded()) return { name: '', error: '' };
 
-const gc = document.getElementById('gc');
+  const missing = [];
+  const lookup = (kind, id) => {
+    const names = DATA[kind].names;
+    if (!names) return null;               // that file simply isn't loaded yet
+    if (!(id in names)) { missing.push(id); return null; }
+    return names[id];
+  };
+
+  const parts = [];
+  tpl.turrets.forEach(id => { const n = lookup('weapons', id); if (n) parts.push(n); });
+  const b = lookup('body', tpl.body);             if (b) parts.push(b);
+  const p = lookup('propulsion', tpl.propulsion); if (p) parts.push(p);
+
+  if (missing.length) return { name: '', error: 'unknown id: ' + missing.join(', ') };
+  return { name: parts.join(' '), error: '' };
+}
+
+let lineCache = {};
+
+function getLineInfo(raw) {
+  if (raw in lineCache) return lineCache[raw];
+
+  const cls = classifyLine(raw);
+  let info;
+
+  if (cls.type === 'template' || cls.type === 'comment') {
+    const looksTemplate = cls.body.trim().startsWith('{');
+    if (cls.type === 'comment' && !looksTemplate) {
+      info = { ...cls, tpl: null, name: '', error: '' };       // plain prose comment
+    } else {
+      const p = parseTemplate(cls.body);
+      if (p.error) {
+        info = { ...cls, tpl: null, name: '', error: p.error };
+      } else {
+        const d = deriveName(p);
+        info = { ...cls, tpl: p, name: d.name, error: d.error };
+      }
+    }
+  } else {
+    info = { ...cls, tpl: null, name: '', error: '' };
+  }
+
+  lineCache[raw] = info;
+  return info;
+}
+
+const invalidate = () => { lineCache = {}; };
+
+// ── Rendering ─────────────────────────────────────────────────────────────────
+// A DOM mirror sits behind the textarea holding the same text, laid out by the
+// same engine under the same metrics (see the shared CSS rule). Nothing here
+// measures text or computes an x offset: tabs, font fallback and wide glyphs
+// land wherever the browser puts them, which is by construction wherever the
+// caret thinks they are.
+
+const ta     = document.getElementById('ta');
+const mirror = document.getElementById('mirror');
+const gc     = document.getElementById('gc');
+const hl     = document.getElementById('hl');
+
+// Read the line box off the stylesheet rather than restating it here — the
+// caret-line band has to land on the same grid the text does.
+const cssPx = (name) => parseFloat(getComputedStyle(document.documentElement).getPropertyValue(name));
+const LH   = cssPx('--lh');
+const VPAD = cssPx('--vpad');
+
+const ESC = { '&': '&amp;', '<': '&lt;', '>': '&gt;' };
+const esc  = (s) => s.replace(/[&<>]/g, c => ESC[c]);
+const span = (cls, text) => `<span class="${cls}">${esc(text)}</span>`;
+
+const TOKEN_RX = /("(?:[^"\\]|\\.)*")|([A-Za-z_]\w*)\s*(?=:)|(\bnull\b)|([{}\[\],:])/g;
+
+// Whitespace falls through as punct — colour is irrelevant, position is not, so
+// it has to stay in the output verbatim.
+function tokenize(text) {
+  let out = '', last = 0, m;
+  TOKEN_RX.lastIndex = 0;
+  while ((m = TOKEN_RX.exec(text)) !== null) {
+    if (m.index > last) out += span('t-punct', text.slice(last, m.index));
+    if (m[1])      out += span('t-id',    m[1]);
+    else if (m[2]) out += span('t-key',   m[0]);
+    else if (m[3]) out += span('t-null',  m[3]);
+    else           out += span('t-punct', m[4]);
+    last = m.index + m[0].length;
+  }
+  if (last < text.length) out += span('t-punct', text.slice(last));
+  return out;
+}
+
+const TRAILER_GAP = 3;                 // columns between the longest line and the names
+
+function renderLine(raw, info, col) {
+  let html;
+
+  if (info.error && info.type !== 'comment') {
+    html = span('t-err', raw);
+  } else if (info.type === 'frame') {
+    html = span('t-frame', raw);
+  } else if (info.type === 'null') {
+    html = span('t-null', raw);
+  } else if (info.type === 'comment') {
+    const i = raw.indexOf('//');
+    html = esc(raw.slice(0, i))
+         + span('t-slash', '//')
+         + span(info.error ? 't-err' : 't-comment', raw.slice(i + 2));
+  } else {
+    html = tokenize(raw);
+  }
+
+  // Every trailer starts in the same column, so the gap is whatever this line
+  // is short of the longest one, plus the standard separation.
+  const text = info.error ? '◂ ' + info.error : info.name;
+  if (text) {
+    const gap = Math.max(col - raw.length, 0) + TRAILER_GAP;
+    const cls = info.error ? 'err' : (info.type === 'comment' ? 'cmt' : 'ok');
+    html += `<span class="trailer ${cls}" style="margin-left:${gap}ch">${esc(text)}</span>`;
+  }
+
+  return `<div class="ml">${html}</div>`;
+}
 
 function formatGutterTime(minutes) {
   const h = Math.floor(minutes / 60);
@@ -524,445 +546,128 @@ function formatGutterTime(minutes) {
   return h > 0 ? `${h}:${String(m).padStart(2, '0')}:00` : `${m}:00`;
 }
 
-function rebuildGutter() {
+// One pass builds both columns, so a row can never appear in one and not the other.
+function render() {
   const lines = ta.value.split('\n');
-  const frag  = document.createDocumentFragment();
+  const infos = lines.map(getLineInfo);
+  const ml = [], gl = [];
+  let count = 0;                       // only increments for real entries
 
-  let count = 0; // only increments for non-comment lines
+  // The trailer column is set by the longest line that carries one; lines
+  // without a trailer are free to run past it.
+  let col = 0;
+  for (let i = 0; i < lines.length; i++)
+    if (infos[i].error || infos[i].name) col = Math.max(col, lines[i].length);
 
-  lines.forEach((raw, i) => {
-    const info    = getLineInfo(raw);
-    const active  = i === currentLine ? ' active' : '';
-    const invalid = info.type === 'text' && !info.resolved;
-    const isComment = info.type === 'comment';
+  for (let i = 0; i < lines.length; i++) {
+    const raw  = lines[i];
+    const info = infos[i];
 
-    const lineNum = isComment ? '' : formatGutterTime(count);
-    if (!isComment) count++;
+    ml.push(renderLine(raw, info, col));
 
-    const div = document.createElement('div');
-    div.className = `gl${invalid ? ' err' : ''}${active}`;
-    div.innerHTML = `<span class="gnum">${lineNum}</span><span class="gdot"></span>`;
-    frag.appendChild(div);
-  });
+    const counts = info.type === 'template' || info.type === 'null';
+    const num    = counts ? formatGutterTime(count) : '';
+    if (counts) count++;
 
-  gc.innerHTML = '';
-  gc.appendChild(frag);
+    gl.push(`<div class="gl${info.error ? ' err' : ''}${i === currentLine ? ' active' : ''}">`
+          + `<span class="gnum">${num}</span><span class="gdot"></span></div>`);
+  }
+
+  mirror.innerHTML = ml.join('');
+  gc.innerHTML     = gl.join('');
+  syncScroll();
 }
 
-function syncGutterScroll() {
-  gc.style.transform = `translateY(-${ta.scrollTop}px)`;
+function syncScroll() {
+  mirror.style.transform = `translate(${-ta.scrollLeft}px, ${-ta.scrollTop}px)`;
+  gc.style.transform     = `translateY(${-ta.scrollTop}px)`;
+  syncHighlight();
+}
+
+function syncHighlight() {
+  hl.style.transform = `translateY(${VPAD + currentLine * LH - ta.scrollTop}px)`;
 }
 
 // ── Cursor tracking ───────────────────────────────────────────────────────────
 
-let currentLine     = 0;
-let currentLineInfo = { type: 'empty', name: '', resolved: null };
+let currentLine = 0;
 
 function getCursorLine() {
   const before = ta.value.substring(0, ta.selectionStart);
   return (before.match(/\n/g) || []).length;
 }
 
-function updateCurrentLine() {
-  const newLine = getCursorLine();
-  const changed = newLine !== currentLine;
-  currentLine = newLine;
-
-  const raw = ta.value.split('\n')[currentLine] ?? '';
-  currentLineInfo = getLineInfo(raw);
-
-  if (changed) renderAllPanels();
-  rebuildGutter();
-  syncGutterScroll();
-  drawHighlights();
+function refresh() {
+  currentLine = getCursorLine();
+  render();
 }
 
-ta.addEventListener('input', () => {
-  resolveCache = {};
-  updateCurrentLine();
-});
+ta.addEventListener('input', () => { invalidate(); save('editor'); refresh(); });
+ta.addEventListener('scroll', syncScroll);
 
-ta.addEventListener('scroll', () => {
-  syncGutterScroll();
-  drawHighlights();
-});
-
+// Moving the caret only repaints two gutter rows — no need to rebuild anything.
 document.addEventListener('selectionchange', () => {
   if (document.activeElement !== ta) return;
-  const newLine = getCursorLine();
-  if (newLine !== currentLine) {
-    currentLine = newLine;
-    const raw = ta.value.split('\n')[currentLine] ?? '';
-    currentLineInfo = getLineInfo(raw);
-    rebuildGutter();
-    renderAllPanels();
-  }
+  const n = getCursorLine();
+  if (n === currentLine) return;
+  gc.children[currentLine]?.classList.remove('active');
+  gc.children[n]?.classList.add('active');
+  currentLine = n;
+  syncHighlight();
 });
 
-// Canvas resize
-const ro = new ResizeObserver(() => {
-  setupCanvas();
-  drawHighlights();
+// ── Tabs ──────────────────────────────────────────────────────────────────────
+
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+  document.querySelectorAll('.pane').forEach(p => p.classList.toggle('active', p.id === 'pane-' + name));
+
+  if (name === 'editor') {
+    invalidate();                    // stat data may have changed while away
+    refresh();
+    ta.focus();
+  } else {
+    document.getElementById('data-' + name).focus();
+  }
+}
+
+// condense only on paste — rewriting on every keystroke would fight anyone editing by hand
+const PASTE_INPUTS = new Set(['insertFromPaste', 'insertFromPasteAsQuotation', 'insertFromDrop']);
+
+KINDS.forEach(kind => {
+  const el = document.getElementById('data-' + kind);
+  el.addEventListener('input', (e) => {
+    loadData(kind);
+    if (PASTE_INPUTS.has(e.inputType)) condense(kind);
+    save(kind);
+  });
 });
-ro.observe(ta);
 
-// ── Sidebar ───────────────────────────────────────────────────────────────────
+// ── Persistence ───────────────────────────────────────────────────────────────
 
-function escRx(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
-
-function replaceInName(name, oldComp, newComp) {
-  return name.replace(new RegExp(escRx(oldComp), 'i'), newComp).replace(/\s+/g, ' ').trim();
-}
-function removeFromName(name, comp) {
-  return name.replace(new RegExp('\\s*' + escRx(comp) + '\\s*', 'i'), ' ').replace(/\s+/g, ' ').trim();
+function save(which) {
+  try {
+    const el = which === 'editor' ? ta : document.getElementById('data-' + which);
+    localStorage.setItem(LS[which], el.value);
+  } catch (e) { /* storage full or blocked — not fatal */ }
 }
 
-// Reconstruct the full line raw text from a modified name, preserving // prefix
-function applyNameToLine(rawLine, newName) {
-  const cls = classifyLine(rawLine);
-  if (cls.type === 'comment') return '// ' + newName;
-  return newName;
-}
-
-const PANELS = {
-  weapon: {
-    searchId: 'sWeapon', listId: 'lWeapon', curId: 'curWeapon',
-    data: () => WEAPONS,
-    getResolved: (info) => info.resolved?.turrets ?? [],
-    applyClick(item, isRes, info) {
-      const name = info.name;
-      if (isRes)              return removeFromName(name, item.name);
-      const cur = info.resolved?.turrets?.[0];
-      if (cur)                return replaceInName(name, cur.name, item.name);
-      return name ? item.name + ' ' + name : item.name;
-    },
-  },
-  body: {
-    searchId: 'sBody', listId: 'lBody', curId: 'curBody',
-    data: () => BODIES,
-    getResolved: (info) => info.resolved?.body ? [info.resolved.body] : [],
-    applyClick(item, isRes, info) {
-      const name = info.name;
-      if (isRes)            return removeFromName(name, item.name);
-      const cur = info.resolved?.body;
-      if (cur)              return replaceInName(name, cur.name, item.name);
-      return name ? name + ' ' + item.name : item.name;
-    },
-  },
-  prop: {
-    searchId: 'sProp', listId: 'lProp', curId: 'curProp',
-    data: () => PROPS,
-    getResolved: (info) => info.resolved?.propulsion ? [info.resolved.propulsion] : [],
-    applyClick(item, isRes, info) {
-      const name = info.name;
-      if (isRes)            return removeFromName(name, item.name);
-      const cur = info.resolved?.propulsion;
-      if (cur)              return replaceInName(name, cur.name, item.name);
-      return name ? name + ' ' + item.name : item.name;
-    },
-  },
-};
-
-function renderPanel(type) {
-  const cfg     = PANELS[type];
-  const data    = cfg.data();
-  const q       = document.getElementById(cfg.searchId).value.toLowerCase().trim();
-  const listEl  = document.getElementById(cfg.listId);
-  const curEl   = document.getElementById(cfg.curId);
-  const info    = currentLineInfo;
-  const isComment = info.type === 'comment';
-  const isEditable = info.type === 'text' || info.type === 'comment' || info.type === 'empty';
-
-  const resolvedItems = cfg.getResolved(info);
-  const resolvedIds   = new Set(resolvedItems.map(x => x.id));
-
-  // Header label
-  if (resolvedItems.length) {
-    curEl.textContent = resolvedItems.map(x => x.name).join(' + ');
-    curEl.className   = 'sp-cur show ' + (isComment ? 'cmt' : 'ok');
-  } else {
-    curEl.textContent = '';
-    curEl.className   = 'sp-cur';
-  }
-
-  if (!data) {
-    listEl.innerHTML = '<div class="sp-empty">Data file not loaded</div>';
-    return;
-  }
-
-  const list = q
-    ? data.filter(c => c.name.toLowerCase().includes(q) || c.id.toLowerCase().includes(q))
-    : data;
-
-  if (!list.length) {
-    listEl.innerHTML = '<div class="sp-empty">No results</div>';
-    return;
-  }
-
-  const frag = document.createDocumentFragment();
-  let firstResEl = null;
-
-  list.slice(0, 150).forEach(item => {
-    const isRes = resolvedIds.has(item.id);
-    const div   = document.createElement('div');
-    div.className = 'si' + (isRes ? (isComment ? ' res-cmt' : ' res') : '');
-    div.innerHTML =
-      `<span class="si-name" title="${item.name}">${item.name}</span>` +
-      `<span class="si-id">${item.id}</span>`;
-
-    if (isEditable) {
-      div.addEventListener('mousedown', e => {
-        e.preventDefault();
-        handleSidebarClick(type, item, isRes);
-      });
-    }
-
-    frag.appendChild(div);
-    if (isRes && !firstResEl) firstResEl = div;
-  });
-
-  listEl.innerHTML = '';
-  listEl.appendChild(frag);
-
-  if (!q && firstResEl) {
-    requestAnimationFrame(() => firstResEl.scrollIntoView({ block: 'nearest' }));
-  }
-}
-
-function renderAllPanels() {
-  renderPanel('weapon');
-  renderPanel('body');
-  renderPanel('prop');
-}
-
-function handleSidebarClick(type, item, isRes) {
-  const lines   = ta.value.split('\n');
-  const idx     = currentLine;
-  const rawLine = lines[idx] ?? '';
-  const info    = currentLineInfo;
-
-  // Compute new name portion
-  const newName = PANELS[type].applyClick(item, isRes, info);
-  const newRaw  = applyNameToLine(rawLine, newName);
-
-  if (newRaw === rawLine) return;
-
-  lines[idx] = newRaw;
-  const newValue  = lines.join('\n');
-  const lineStart = lines.slice(0, idx).reduce((s, l) => s + l.length + 1, 0);
-  const newCursor = lineStart + newRaw.length;
-
-  ta.value = newValue;
-  ta.setSelectionRange(newCursor, newCursor);
-  ta.focus();
-
-  resolveCache = {};
-  currentLine  = idx;
-  currentLineInfo = getLineInfo(newRaw);
-
-  rebuildGutter();
-  syncGutterScroll();
-  drawHighlights();
-  renderAllPanels();
-}
-
-// ── Export ────────────────────────────────────────────────────────────────────
-
-function buildExport() {
-  const lines = ta.value.split('\n');
-
-  const fmtRow = (r, name) => {
-    const t = `[${r.turrets.map(x => `"${x.id}"`).join(', ')}]`;
-    const b = `"${r.body.id}"`;
-    const p = `"${r.propulsion.id}"`;
-    const n = `"${name}"`;
-    return `{ turrets: ${t}, body: ${b}, propulsion: ${p}, name: ${n} }`;
-  };
-
-  let activeCount = 0, commentCount = 0, nullCount = 0, skipped = 0;
-  const outLines = [];
-  lines.forEach(raw => {
-    const info = getLineInfo(raw);
-    if (info.type === 'empty') return;
-
-    if (info.type === 'null') {
-      outLines.push('\tnull,');
-      nullCount++;
-      return;
-    }
-
-    if (info.type === 'comment') {
-      if (info.resolved) {
-        outLines.push('\t// ' + fmtRow(info.resolved, info.name) + ',');
-        commentCount++;
-      } else if (info.name) {
-        outLines.push(`\t// (unresolved) "${info.name}"`);
-        commentCount++;
-      }
-      return;
-    }
-
-    if (info.type === 'text' && info.resolved) {
-      outLines.push('\t' + fmtRow(info.resolved, info.name) + ',');
-      activeCount++;
-    } else if (info.type === 'text') {
-      skipped++;
-    }
-  });
-
-  const text = activeCount === 0 && nullCount === 0 && commentCount === 0
-    ? 'const TEMPLATES = [];\n'
-    : `const TEMPLATES = [\n${outLines.join('\n')}\n];\n`;
-
-  return { text, activeCount, commentCount, nullCount, skipped };
-}
-
-function openExport() {
-  const { text, activeCount, commentCount, nullCount, skipped } = buildExport();
-  document.getElementById('exportText').value = text;
-  const note  = document.getElementById('exportNote');
-  const parts = [];
-  if (activeCount)  parts.push(`${activeCount} active`);
-  if (commentCount) parts.push(`${commentCount} commented`);
-  if (nullCount)    parts.push(`${nullCount} null`);
-  let msg = parts.join(' · ');
-  if (skipped) { msg += ` · ${skipped} unresolved skipped`; note.className = 'modal-note warn'; }
-  else           note.className = 'modal-note';
-  note.textContent = msg;
-  document.getElementById('exportModal').classList.add('open');
-}
-
-function closeExport() { document.getElementById('exportModal').classList.remove('open'); }
-
-function copyExport() {
-  const text = document.getElementById('exportText').value;
-  navigator.clipboard.writeText(text).catch(() => {
-    const el = document.getElementById('exportText'); el.select(); document.execCommand('copy');
-  });
-  const btn = document.getElementById('copyBtn');
-  btn.textContent = '✓ Copied'; btn.classList.add('ok');
-  setTimeout(() => { btn.textContent = 'Copy to clipboard'; btn.classList.remove('ok'); }, 1600);
-}
-
-function dlExport() {
-  const text = document.getElementById('exportText').value;
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([text], { type: 'text/javascript' }));
-  a.download = 'TEMPLATES.js'; a.click();
-  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
-}
-
-// ── Import ────────────────────────────────────────────────────────────────────
-
-function openImport() {
-  document.getElementById('importText').value = '';
-  document.getElementById('importNote').textContent = 'Paste a TEMPLATES array and click Import.';
-  document.getElementById('importNote').className = 'modal-note';
-  document.getElementById('importModal').classList.add('open');
-  document.getElementById('importText').focus();
-}
-
-function closeImport() { document.getElementById('importModal').classList.remove('open'); }
-
-function parseTemplatesJS(src) {
-  // Returns array of editor lines (strings) preserving order.
-  // Each source line can be:
-  //   null,
-  //   { turrets: [...], body: "...", propulsion: "...", name: "Foo Bar" },
-  //   // { turrets: [...], ..., name: "Foo Bar" },
-  //   // (unresolved) "Foo Bar"
-  //   blank / frame lines (const TEMPLATES = [ / ]; ) → skip
-
-  const lines = src.split('\n');
-  const result = [];
-
-  for (const raw of lines) {
-    const t = raw.trim();
-
-    // Skip frame / blank lines
-    if (!t) continue;
-    if (/^const\s+TEMPLATES\s*=\s*\[/.test(t)) continue;
-    if (/^\]\s*;?\s*$/.test(t)) continue;
-
-    // null entry
-    if (/^null,?\s*$/.test(t)) {
-      result.push('null');
-      continue;
-    }
-
-    // Commented template line: // { ... name: "Foo" ... }
-    // or // (unresolved) "Foo"
-    if (t.startsWith('//')) {
-      const inner = t.slice(2).trim();
-      // Try to extract name: "..."
-      const nm = inner.match(/name:\s*"([^"]+)"/);
-      if (nm) {
-        result.push('// ' + nm[1]);
-        continue;
-      }
-      // Try // (unresolved) "Foo"
-      const un = inner.match(/^\(unresolved\)\s*"([^"]+)"/);
-      if (un) {
-        result.push('// ' + un[1]);
-        continue;
-      }
-      // Plain comment with no recognisable structure — keep as-is
-      result.push('// ' + inner);
-      continue;
-    }
-
-    // Active template line: { turrets: [...], body: "...", ..., name: "Foo" },
-    const nm = t.match(/name:\s*"([^"]+)"/);
-    if (nm) {
-      result.push(nm[1]);
-      continue;
-    }
-
-    // Unrecognised non-blank line — skip silently
-  }
-
-  return result;
-}
-
-function doImport() {
-  const src = document.getElementById('importText').value;
-  if (!src.trim()) return;
-
-  const lines = parseTemplatesJS(src);
-
-  if (!lines.length) {
-    const note = document.getElementById('importNote');
-    note.className = 'modal-note warn';
-    note.textContent = 'Nothing recognised — make sure you pasted a valid TEMPLATES array.';
-    return;
-  }
-
-  const append = document.getElementById('importAppend').checked;
-  const existing = ta.value.trimEnd();
-
-  let newValue;
-  if (append && existing) {
-    newValue = existing + '\n' + lines.join('\n');
-  } else {
-    newValue = lines.join('\n');
-  }
-
-  ta.value = newValue;
-  resolveCache = {};
-  currentLine = 0;
-  ta.setSelectionRange(0, 0);
-  ta.focus();
-
-  updateCurrentLine();
-
-  closeImport();
+function restore() {
+  try {
+    const ed = localStorage.getItem(LS.editor);
+    if (ed) ta.value = ed;
+    KINDS.forEach(k => {
+      const v = localStorage.getItem(LS[k]);
+      if (v) document.getElementById('data-' + k).value = v;
+    });
+  } catch (e) { /* ignore */ }
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 
-setupCanvas();
-rebuildGutter();
-renderAllPanels();
+restore();
+KINDS.forEach(k => { loadData(k); condense(k); save(k); });   // shrinks anything stored full-size
+refresh();
 ta.focus();
 </script>
 </body>
