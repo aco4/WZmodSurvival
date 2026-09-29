@@ -1,163 +1,135 @@
 namespace("spawn_")
 
+var spawn_powerTeamBest = 0;
+const spawn_multiTechLevel = getMultiTechLevel();
+
 function spawn_eventStartLevel()
 {
-	queue("spawn_tick", 60 * 1000);
+	if (ENTRANCES.length > 0)
+	{
+		setTimer("spawn_tick", 5 * 1000);
+	}
 }
 
 function spawn_tick()
 {
-	if (spawn_positions.length === 0)
+	const powerTeam = spawn_getPowerTeam();
+	if (powerTeam > spawn_powerTeamBest)
 	{
-		return;
+		spawn_powerTeamBest = powerTeam;
 	}
 
-	// Calculate team power
-	let powerAllies = 0;
-	for (let player = 0; player < maxPlayers; player++)
+	const timeMultiplier = spawn_getTimeMultiplier();
+
+	// When the team is underperforming, reduce their perceived power so the
+	// enemy allocates less budget. The adjustment starts at 1.0 and strengthens
+	// quadratically as the team falls below their best. The minimum that rises
+	// over time exists to gradually erase the adjustment.
+	const adjustment = Math.max(timeMultiplier,
+		(powerTeam / spawn_powerTeamBest)**2
+	);
+
+	// The enemy's measured power obeys a minimum that rises linearly and takes
+	// effect only in late game.
+	const powerEnemy = (() =>
 	{
-		if (player !== ENEMY)
+		const G = (gameTime >> 13) * derrickPositions.length;
+		const minimum = Math.floor(G * timeMultiplier);
+		return Math.max(minimum, spawn_getPowerEnemy());
+	})();
+
+	// Allocate enough budget to match the team's power.
+	let enemyBudget = Math.floor((powerTeam * adjustment) - powerEnemy);
+
+	// The frontier represents the latest enemy template that can appear and is
+	// measured as time in minutes.
+	const frontier = (() =>
+	{
+		if (spawn_multiTechLevel === 4)
 		{
-			for (const droid of enumDroid(player))
-			{
-				if (droid.droidType === DROID_WEAPON || droid.droidType === DROID_CYBORG)
-				{
-					powerAllies += droid.cost;
-				}
-			}
-			for (const structure of enumStruct(player))
-			{
-				if (structure.stattype === DEFENSE && structure.status === BUILT)
-				{
-					if (structure.cost >= 1000) // probably a fortress
-					{
-						powerAllies += Math.ceil(structure.cost ** 1.1);
-					}
-					else
-					{
-						powerAllies += structure.cost;
-					}
-				}
-			}
+			return TEMPLATES.length;
 		}
-	}
 
-	// Halve the calculated team power, for balance reasons
-	powerAllies = Math.floor(spawn_difficulty * powerAllies);
+		// The frontier is determined by the team's research progress, not
+		// elapsed time. This prevents the enemy from out-pacing the team.
+		let seconds = LATEST_RESEARCH.minimumResearchTime;
 
-	// Slowly increase difficulty over time
-	const numOils = derrickPositions.length;
-	const numPlayers = maxPlayers - 1;
-	const maxOils = 40 * numPlayers; // Power is limited by max power generator count (10 * 4)
-	const k = Math.min(numOils, maxOils);
-	powerAllies += (k * gameTime) >> 16;
+		// As time passes, gradually unhandicap the enemy.
+		const lagTime = gameTime - LATEST_RESEARCH.gameTime;
+		const lagTimeSeconds = Math.floor(lagTime / 1000);
+		seconds += Math.floor(lagTimeSeconds * timeMultiplier);
 
-	// Calculate enemy power
-	let powerEnemy = 0;
-	for (const droid of enumDroid(ENEMY))
+		return Math.min(TEMPLATES.length, Math.floor(seconds / 60));
+	})();
+
+	while (enemyBudget > 0)
 	{
-		powerEnemy += Math.max(15, droid.cost);
+		// Favor newer templates: Pick twice, then take the max.
+		const a = syncRandom(frontier);
+		const b = syncRandom(frontier);
+		const i = Math.max(a, b);
+
+		const template = TEMPLATES[i];
+		const [x, y] = ENTRANCES[syncRandom(ENTRANCES.length)];
+		const droid = addDroid(ENEMY, x, y, "Enemy", template.body, template.propulsion, "", "", ...template.turrets);
+
+		enemyBudget -= droid.cost;
 	}
-
-	// Add enemies until the power exceeds the human players
-	const minute = TECH_TIME === null ? TEMPLATES.length : Math.min(TEMPLATES.length, Math.floor(TECH_TIME / 60));
-	while (powerEnemy < powerAllies)
-	{
-		const template = TEMPLATES[syncRandom(minute)];
-		if (template)
-		{
-			const [x, y] = spawn_positions[syncRandom(spawn_positions.length)];
-			hackNetOff();
-			const droid = addDroid(ENEMY, x, y, template.name, template.body, template.propulsion, "", "", ...template.turrets);
-			hackNetOn();
-
-			powerEnemy += Math.max(15, droid.cost);
-		}
-	}
-
-	queue("spawn_tick", 60 * 1000);
 }
 
-const spawn_difficulty = (() =>
+function spawn_getPowerTeam()
 {
-	switch (playerData[ENEMY].difficulty)
-	{
-		case INSANE: return 0.9;
-		case HARD  : return 0.7;
-		case MEDIUM: return 0.5;
-		case EASY  : return 0.3;
-		default    : return 0.3;
-	}
-})();
-
-var spawn_positions = (() => {
-	const startTiles = [];
+	let power = 0;
 	for (let player = 0; player < maxPlayers; player++)
 	{
 		if (player === ENEMY)
 		{
 			continue;
 		}
-		const { x, y } = startPositions[player];
-		startTiles.push(MapTiles[y][x]);
-	}
-
-	const limitedPositions = spawn_getPositions((x, y) =>
-	{
-		return startTiles.some(t => t.limitedContinent === MapTiles[y][x].limitedContinent);
-	});
-
-	if (limitedPositions.length === 0)
-	{
-		return spawn_getPositions((x, y) =>
+		for (const droid of enumDroid(player, DROID_WEAPON))
 		{
-			return startTiles.some(t => t.hoverContinent === MapTiles[y][x].hoverContinent);
-		});
+			if (droid.droidType === DROID_WEAPON || droid.droidType === DROID_CYBORG || droid.droidType === DROID_PERSON)
+			{
+				power += droid.cost;
+			}
+		}
+		for (const structure of enumStruct(player, DEFENSE))
+		{
+			if (structure.status === BUILT && structure.canHitGround)
+			{
+				power += structure.cost;
+
+				// Rocket fortresses are OP, so double the power
+				if (structure.cost >= 1250)
+				{
+					power += structure.cost;
+				}
+			}
+		}
 	}
+	return power;
+}
 
-	return limitedPositions;
-})();
-
-function spawn_getPositions(filter)
+function spawn_getPowerEnemy()
 {
-	const positions = [];
+	let power = 0;
+	for (const droid of enumDroid(ENEMY, DROID_ANY))
+	{
+		// Scavenger units are too cheap, so a minimum is needed
+		power += Math.max(40, droid.cost);
+	}
+	return power;
+}
 
-	// North
-	for (let x = 1; x < mapWidth - 1; x++)
-	{
-		const y = 1;
-		if (filter(x, y))
-		{
-			positions.push([x, y]);
-		}
-	}
-	// South
-	for (let x = 1; x < mapWidth - 1; x++)
-	{
-		const y = mapHeight - 2;
-		if (filter(x, y))
-		{
-			positions.push([x, y]);
-		}
-	}
-	// West
-	for (let y = 2; y < mapHeight - 1; y++)
-	{
-		const x = 1;
-		if (filter(x, y))
-		{
-			positions.push([x, y]);
-		}
-	}
-	// East
-	for (let y = 2; y < mapHeight - 1; y++)
-	{
-		const x = mapWidth - 2;
-		if (filter(x, y))
-		{
-			positions.push([x, y]);
-		}
-	}
+// Calculate the time multiplier from current gameTime.
+// The multiplier starts at 0.0 and grows with time to 1.0 at a quadratic rate.
+function spawn_getTimeMultiplier()
+{
+	const minutes = Math.floor((gameTime / 1000) / 60);
 
-	return positions;
+	// y = x^2 / 90^2
+	const y = (minutes * minutes) / (80 * 80); // reach 1.0 at 80 minutes
+
+	// Do not exceed 1.0
+	return Math.min(1, y);
 }

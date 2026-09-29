@@ -18,7 +18,9 @@ function reticule_canResearch(player)
 
 function reticule_canBuild(player)
 {
-	return countDroid(DROID_CONSTRUCT, player) > 0;
+	// Use enumDroid() because countDroid() includes droids inside transporters.
+	// Droids inside transporters shouldn't enable reticules.
+	return enumDroid(player, DROID_CONSTRUCT).length > 0;
 }
 
 function reticule_canDesign(player)
@@ -28,7 +30,9 @@ function reticule_canDesign(player)
 
 function reticule_canCommand(player)
 {
-	return countDroid(DROID_COMMAND, player) > 0;
+	// Use enumDroid() because countDroid() includes droids inside transporters.
+	// Droids inside transporters shouldn't enable reticules.
+	return enumDroid(player, DROID_COMMAND, player) > 0;
 }
 
 

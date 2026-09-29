@@ -4,37 +4,44 @@ var gameOver_message = "";
 
 function gameOver_eventGameInit()
 {
-	queue("gameOver_tick", 2 * 1000);
+	queue("gameOver_tick", 3 * 1000);
 }
 
 function gameOver_tick()
 {
-	if (gameOver_isGameOver())
+	if (gameOver_isGameOver() === false)
 	{
-		for (let player = 0; player < maxPlayers; player++)
+		queue("gameOver_tick", 3 * 1000);
+		return;
+	}
+
+	gameOver_message = gameOver_formatTime(gameTime);
+	gameOver_sendMessage();
+	setTimer("gameOver_sendMessage", 5000);
+
+	gameOver_finalize(ENEMY, true);
+	for (let player = 0; player < maxPlayers; player++)
+	{
+		if (player !== ENEMY)
 		{
 			gameOver_finalize(player, false);
 		}
-		if (isSpectator(-1)) {
-			gameOverMessage(false);
-		}
-
-		gameOver_message = gameOver_formatTime(gameTime);
-		gameOver_sendMessage();
-		setTimer("gameOver_sendMessage", 5000);
 	}
-	else
+
+	if (isSpectator(-1))
 	{
-		queue("gameOver_tick", 2 * 1000);
+		gameOverMessage(false);
 	}
 }
 
 function gameOver_finalize(player, win)
 {
-	if (player === selectedPlayer) {
+	if (player === selectedPlayer)
+	{
 		gameOverMessage(win);
 	}
-	if (!win && !isSpectator(player) && playerData[player].isHuman) {
+	if (!win && !isSpectator(player) && playerData[player].isHuman)
+	{
 		// should come after gameOverMessage() to ensure the proper gameOverMessage is displayed
 		transformPlayerToSpectator(player);
 	}

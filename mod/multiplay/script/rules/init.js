@@ -2,8 +2,9 @@ receiveAllEvents(true);
 
 // Include global variables
 include("SurvivalMod/ENEMY.js");
+include("SurvivalMod/ENTRANCES.js");
 include("SurvivalMod/TEMPLATES.js");
-include("SurvivalMod/TECH_TIME.js");
+include("SurvivalMod/LATEST_RESEARCH.js");
 
 // Include rest
 include("SurvivalMod/reticule.js");

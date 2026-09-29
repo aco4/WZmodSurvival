@@ -12,10 +12,11 @@ function tick()
 		{
 			for (const structure of enumStruct(player))
 			{
-				if (structure.stattype !== RESOURCE_EXTRACTOR) // ignore oils; units can get stuck on them
+				if (structure.stattype === RESOURCE_EXTRACTOR || structure.stattype === WALL || structure.stattype === GATE || structure.stattype === REARM_PAD)
 				{
-					targets.push(structure);
+					continue;
 				}
+				targets.push(structure);
 			}
 		}
 	}
@@ -36,7 +37,7 @@ function tick()
 
 	enumDroid().forEach(droid =>
 	{
-		if (isIdle(droid.order))
+		if (isIdle(droid))
 		{
 			if (droid.isVTOL && droid.weapons[0].armed === 0)
 			{
@@ -47,24 +48,27 @@ function tick()
 				const target = targets[Math.floor(Math.random() * targets.length)];
 				orderDroidObj(droid, DORDER_OBSERVE, target);
 			}
-			else if (droid.propulsion === "hover01")
-			{
-				const target = targets[Math.floor(Math.random() * targets.length)];
-				orderDroidObj(droid, DORDER_ATTACK, target);
-			}
 			else
 			{
 				const target = targets[Math.floor(Math.random() * targets.length)];
-				orderDroidLoc(droid, DORDER_SCOUT, target.x, target.y);
+				if (droid.propulsion === "hover01")
+				{
+					orderDroidLoc(droid, DORDER_MOVE, target.x, target.y);
+				}
+				else
+				{
+					orderDroidLoc(droid, DORDER_SCOUT, target.x, target.y);
+				}
 			}
 		}
 	});
 }
 
-function isIdle(order)
+function isIdle(droid)
 {
-	return order !== DORDER_ATTACK
-		&& order !== DORDER_MOVE
-		&& order !== DORDER_OBSERVE
-		&& order !== DORDER_SCOUT;
+	return droid.action === 38 // DACTION_RETURNTOPOS
+		|| droid.order !== DORDER_ATTACK
+		&& droid.order !== DORDER_MOVE
+		&& droid.order !== DORDER_OBSERVE
+		&& droid.order !== DORDER_SCOUT;
 }
