@@ -8,7 +8,6 @@
 - Make Player 0 the enemy AI
 - Enemies spawn on the edges of the map
 - Enemies cannot spawn on CLIFF or WATER tiles
-- The mod does not check if number of structures complies with limits
 
 ## Configuration
 Edit `TEMPLATES.js` with [this](https://aco4.github.io/WZmodSurvival/templates-editor/) to configure:
@@ -16,11 +15,8 @@ Edit `TEMPLATES.js` with [this](https://aco4.github.io/WZmodSurvival/templates-e
 * The order of appearance
 
 Edit `spawn.js` to configure:
-* The delay between enemy spawns (minimum = 100. only intervals of 100 work)
+* The delay between enemy spawns
 * Enemy spawn positions
-
-Edit `timer.js` to configure:
-* The number of seconds until the attack begins
 
 ## Mod Variants
 Each directory in [WZmodSurvival/overlays/](/overlays/) represents a variant of the Survival Mod. These directories contain files that override the ones in [WZmodSurvival/mod/](/mod/). The workflow in [WZmodSurvival/.github/workflows/ci.yml](/.github/workflows/ci.yml) will automatically build all the mod variants by overriding the correct files.
