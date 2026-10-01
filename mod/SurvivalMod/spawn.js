@@ -29,17 +29,17 @@ function spawn_tick()
 		(powerTeam / spawn_powerTeamBest)**2
 	);
 
-	// The enemy's measured power obeys a minimum that rises linearly and takes
-	// effect only in late game.
-	const powerEnemy = (() =>
+	// The enemy's target power obeys a minimum that rises linearly and takes
+	// effect only in late game. This keeps pressure on a stable defense.
+	const powerTarget = (() =>
 	{
 		const G = (gameTime >> 13) * derrickPositions.length;
 		const minimum = Math.floor(G * timeMultiplier);
-		return Math.max(minimum, spawn_getPowerEnemy());
+		return Math.max(minimum, Math.floor(powerTeam * adjustment));
 	})();
 
-	// Allocate enough budget to match the team's power.
-	let enemyBudget = Math.floor((powerTeam * adjustment) - powerEnemy);
+	// Allocate enough budget to reach the target power.
+	let enemyBudget = powerTarget - spawn_getPowerEnemy();
 
 	// The frontier represents the latest enemy template that can appear and is
 	// measured as time in minutes.
