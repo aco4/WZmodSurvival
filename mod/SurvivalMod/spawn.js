@@ -97,10 +97,15 @@ function spawn_getPowerTeam()
 		{
 			if (structure.status === BUILT && structure.canHitGround)
 			{
-				power += structure.cost;
-
-				// Rocket fortresses are OP, so double the power
-				if (structure.cost >= 1250)
+				if (structure.cost === 1250) // Heavy Rocket Bastion
+				{
+					power += structure.cost * 5;
+				}
+				else if (structure.cost === 1600) // Missile Fortress
+				{
+					power += structure.cost * 7;
+				}
+				else
 				{
 					power += structure.cost;
 				}
