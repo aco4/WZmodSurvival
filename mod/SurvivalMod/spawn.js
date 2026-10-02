@@ -2,6 +2,7 @@ namespace("spawn_")
 
 var spawn_powerTeamBest = 0;
 const spawn_multiTechLevel = getMultiTechLevel();
+const spawn_MIN_COST = 30; // Scavenger units are too cheap; enforce a minimum
 
 function spawn_eventStartLevel()
 {
@@ -73,7 +74,7 @@ function spawn_tick()
 		const [x, y] = ENTRANCES[syncRandom(ENTRANCES.length)];
 		const droid = addDroid(ENEMY, x, y, "Enemy", template.body, template.propulsion, "", "", ...template.turrets);
 
-		enemyBudget -= droid.cost;
+		enemyBudget -= Math.max(spawn_MIN_COST, droid.cost);
 	}
 }
 
@@ -120,8 +121,7 @@ function spawn_getPowerEnemy()
 	let power = 0;
 	for (const droid of enumDroid(ENEMY, DROID_ANY))
 	{
-		// Scavenger units are too cheap, so a minimum is needed
-		power += Math.max(40, droid.cost);
+		power += Math.max(spawn_MIN_COST, droid.cost);
 	}
 	return power;
 }
