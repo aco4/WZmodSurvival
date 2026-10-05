@@ -42,6 +42,9 @@ function spawn_tick()
 	// Allocate enough budget to reach the target power.
 	let enemyBudget = powerTarget - spawn_getPowerEnemy();
 
+	// Don't allow the enemy to instantly respawn 100% of their army
+	enemyBudget = enemyBudget >> 2; // divide by 4
+
 	// The frontier represents the latest enemy template that can appear and is
 	// measured as time in minutes.
 	const frontier = (() =>
