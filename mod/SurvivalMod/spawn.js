@@ -92,7 +92,12 @@ function spawn_getPowerTeam()
 		}
 		for (const droid of enumDroid(player, DROID_WEAPON))
 		{
-			if (droid.droidType === DROID_WEAPON || droid.droidType === DROID_CYBORG || droid.droidType === DROID_PERSON)
+			// Unarmed VTOL count for less
+			if (droid.isVTOL && droid.weapons[0].armed === 0)
+			{
+				power += droid.cost >> 1; // divide by 2
+			}
+			else if (droid.droidType === DROID_WEAPON || droid.droidType === DROID_CYBORG || droid.droidType === DROID_PERSON)
 			{
 				power += droid.cost;
 			}
