@@ -3,6 +3,16 @@ namespace("spawn_")
 var spawn_powerTeamBest = 0;
 const spawn_multiTechLevel = getMultiTechLevel();
 const spawn_MIN_COST = 30; // Scavenger units are too cheap; enforce a minimum
+// How long should the game last? This is guidance, not a limit.
+const spawn_GAME_DURATION = (() =>
+{
+	// Instead of picking the duration arbitrarily, base it on the minimum
+	// research time of the last technology.
+	const mrt = includeJSON("minimumResearchTime.json");
+	const seconds = Object.values(mrt).reduce((acc, curr) => Math.max(acc, curr), 0);
+	const minutes = Math.ceil(seconds / 50); // Apply 20% extra duration
+	return minutes;
+})();
 
 function spawn_eventStartLevel()
 {
@@ -128,14 +138,13 @@ function spawn_getPowerEnemy()
 	return power;
 }
 
-// Calculate the time multiplier from current gameTime.
+// Calculate the time multiplier from (1) current gameTime and (2) the end time.
 // The multiplier starts at 0.0 and grows with time to 1.0 at a quadratic rate.
 function spawn_getTimeMultiplier()
 {
-	const minutes = Math.floor((gameTime / 1000) / 60);
-
-	// y = x^2 / 90^2
-	const y = (minutes * minutes) / (80 * 80); // reach 1.0 at 80 minutes
+	const x = Math.floor((gameTime / 1000) / 60);
+	const C = spawn_GAME_DURATION;
+	const y = (x * x) / (C * C); // reach 1.0 when time == C
 
 	// Do not exceed 1.0
 	return Math.min(1, y);
