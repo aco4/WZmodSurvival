@@ -25,7 +25,7 @@ function minimap_check()
 	}
 	else
 	{
-		setMiniMap(true);
+		setMiniMap(false);
 	}
 }
 
