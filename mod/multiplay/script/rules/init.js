@@ -22,3 +22,4 @@ include("SurvivalMod/enableStructure.js");
 include("SurvivalMod/experience.js");
 include("SurvivalMod/vtol.js");
 include("SurvivalMod/spawn.js");
+include("SurvivalMod/gameTimeLimit.js");
