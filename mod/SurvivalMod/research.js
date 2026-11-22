@@ -2,8 +2,6 @@ namespace("research_");
 
 var research_minimumResearchTime = includeJSON("minimumResearchTime.json");
 
-var research_list = Object.entries(research_minimumResearchTime);
-
 function research_eventStartLevel()
 {
 	if (STARTING_RESEARCH_OFFSET === null)
@@ -43,9 +41,9 @@ function research_eventResearched(research, structure, player)
 function research_completeOnTime(seconds, player)
 {
 	hackNetOff();
-	for (const [research, researchTime] of research_list)
+	for (const research in research_minimumResearchTime)
 	{
-		if (researchTime <= seconds)
+		if (Object.hasOwn(research_minimumResearchTime, research) && research_minimumResearchTime[research] <= seconds)
 		{
 			completeResearch(research, player);
 		}
