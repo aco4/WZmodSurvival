@@ -4,42 +4,9 @@ var research_minimumResearchTime = includeJSON("minimumResearchTime.json");
 
 var research_list = Object.entries(research_minimumResearchTime);
 
-var research_offset = (() =>
-{
-	const multiTechLevel = getMultiTechLevel();
-
-	if (multiTechLevel === 1)
-	{
-		if (baseType === CAMP_CLEAN)
-		{
-			return 0; // Construction Unit, Light Body - Viper, and Wheeled Propulsion
-		}
-		else if (baseType === CAMP_BASE)
-		{
-			return 3*60; // after Half-tracked Propulsion and Light Cannon
-		}
-		else // CAMP_WALLS
-		{
-			return 6.4*60; // after Factory Module and HEAT Cannon Shells Mk2
-		}
-	}
-	else if (multiTechLevel === 2)
-	{
-		return 17*60;
-	}
-	else if (multiTechLevel === 3)
-	{
-		return 26*60; // after Needle Gun and Scourge Missile
-	}
-	else // multiTechLevel === 4
-	{
-		return null;
-	}
-})();
-
 function research_eventStartLevel()
 {
-	if (research_offset === null)
+	if (STARTING_RESEARCH_OFFSET === null)
 	{
 		for (let player = 0; player < maxPlayers; player++)
 		{
@@ -53,40 +20,32 @@ function research_eventStartLevel()
 			enableResearch("R-Sys-Sensor-Turret01", player);
 			enableResearch("R-Wpn-MG1Mk1", player);
 			enableResearch("R-Sys-Engineering01", player);
-			research_completeOnTime(research_offset, player);
+			research_completeOnTime(STARTING_RESEARCH_OFFSET, player);
 		}
 	}
 }
 
 function research_eventResearched(research, structure, player)
 {
-	if (player === ENEMY || research_offset === null)
+	if (player === ENEMY || STARTING_RESEARCH_OFFSET === null)
 	{
 		return;
 	}
 
-	const time = research_minimumResearchTime[research.id];
-	if (time)
+	const seconds = research_minimumResearchTime[research.id];
+	if (seconds && seconds > LATEST_RESEARCH_SECONDS)
 	{
-		research_completeOnTime(time, ENEMY);
-		if (time > LATEST_RESEARCH.minimumResearchTime)
-		{
-			LATEST_RESEARCH = {
-				"id": research.id,
-				"minimumResearchTime": time,
-				"gameTime": gameTime
-			};
-		}
-		research_offset = Math.max(research_offset, time);
+		research_completeOnTime(seconds, ENEMY);
+		LATEST_RESEARCH_SECONDS = seconds;
 	}
 }
 
-function research_completeOnTime(time, player)
+function research_completeOnTime(seconds, player)
 {
 	hackNetOff();
 	for (const [research, researchTime] of research_list)
 	{
-		if (researchTime <= time)
+		if (researchTime <= seconds)
 		{
 			completeResearch(research, player);
 		}

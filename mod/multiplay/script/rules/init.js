@@ -4,7 +4,8 @@ receiveAllEvents(true);
 include("SurvivalMod/ENEMY.js");
 include("SurvivalMod/ENTRANCES.js");
 include("SurvivalMod/TEMPLATES.js");
-include("SurvivalMod/LATEST_RESEARCH.js");
+include("SurvivalMod/STARTING_RESEARCH_OFFSET.js");
+include("SurvivalMod/LATEST_RESEARCH_SECONDS.js");
 
 // Include rest
 include("SurvivalMod/reticule.js");

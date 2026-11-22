@@ -47,6 +47,8 @@ function spawn_tick()
 
 	// The frontier represents the latest enemy template that can appear and is
 	// measured as time in minutes.
+	// The frontier is determined by the team's research progress, not elapsed
+	// time. This prevents the enemy from out-pacing the team.
 	const frontier = (() =>
 	{
 		if (spawn_multiTechLevel === 4)
@@ -54,14 +56,9 @@ function spawn_tick()
 			return TEMPLATES.length;
 		}
 
-		// The frontier is determined by the team's research progress, not
-		// elapsed time. This prevents the enemy from out-pacing the team.
-		let seconds = LATEST_RESEARCH.minimumResearchTime;
-
 		// As time passes, gradually unhandicap the enemy.
-		const lagTime = gameTime - LATEST_RESEARCH.gameTime;
-		const lagTimeSeconds = Math.floor(lagTime / 1000);
-		seconds += Math.floor(lagTimeSeconds * timeMultiplier);
+		const timeDifference = STARTING_RESEARCH_OFFSET + Math.floor(gameTime / 1000) - LATEST_RESEARCH_SECONDS;
+		const seconds = LATEST_RESEARCH_SECONDS + Math.floor(timeDifference * timeMultiplier);
 
 		return Math.min(TEMPLATES.length, Math.floor(seconds / 60));
 	})();
