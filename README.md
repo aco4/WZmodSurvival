@@ -1,43 +1,13 @@
 # SurvivalMod
 - How long can you survive?
-- Cooperative team game against endless enemies
+- Cooperative team game
+- An endless wave of enemies will spawn on the edge of the map
 - Experience gain disabled (no ranks)
 - Saving/loading not supported yet
-
-## Maps
 - Make Player 0 the enemy AI
-- Enemies spawn on the edges of the map
-- Enemies cannot spawn on CLIFF or WATER tiles
 
-## Configuration
-Edit `TEMPLATES.js` with [this](https://aco4.github.io/WZmodSurvival/templates-editor/) to configure:
-* Enemy unit designs
-* The order of appearance
-
-Edit `spawn.js` to configure:
-* The delay between enemy spawns
-* Enemy spawn positions
-
-## Mod Variants
-Each directory in [WZmodSurvival/overlays/](/overlays/) represents a variant of the Survival Mod. These directories contain files that override the ones in [WZmodSurvival/mod/](/mod/). The workflow in [WZmodSurvival/.github/workflows/ci.yml](/.github/workflows/ci.yml) will automatically build all the mod variants by overriding the correct files.
-
-### Adaptive
-The default Survival Mod experience.
-- Number of enemies adapts to your performance.
-- Enemy research matches your research speed.
-
-### Standard
-Difficulty is fixed to provide a standardized challenge.
-* Insane = 10 enemies per second
-* Hard = 5 enemies per second
-* Medium = 3.33 enemies per second
-* Easy = 2.5 enemies per second
-
-### Hover
-Hover enemies.
-
-### Big
-Big enemies.
+## Overlays
+Each directory in [WZmodSurvival/overlays/](/overlays/) represents a variant of the Survival Mod. These directories contain files that override the ones in [WZmodSurvival/mod/](/mod/). The workflow in [WZmodSurvival/.github/workflows/ci.yml](/.github/workflows/ci.yml) will automatically build each overlay.
 
 ## License
 SPDX-License-Identifier: GPL-2.0-or-later
