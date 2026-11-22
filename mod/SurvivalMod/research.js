@@ -1,6 +1,6 @@
 namespace("research_");
 
-var research_minimumResearchTime = includeJSON("minimumResearchTime.json");
+const research_MIN_RES_TIME = includeJSON("minimumResearchTime.json");
 
 function research_eventStartLevel()
 {
@@ -30,7 +30,7 @@ function research_eventResearched(research, structure, player)
 		return;
 	}
 
-	const seconds = research_minimumResearchTime[research.id];
+	const seconds = research_MIN_RES_TIME[research.id];
 	if (seconds && seconds > LATEST_RESEARCH_SECONDS)
 	{
 		research_completeOnTime(seconds, ENEMY);
@@ -41,9 +41,9 @@ function research_eventResearched(research, structure, player)
 function research_completeOnTime(seconds, player)
 {
 	hackNetOff();
-	for (const research in research_minimumResearchTime)
+	for (const research in research_MIN_RES_TIME)
 	{
-		if (Object.hasOwn(research_minimumResearchTime, research) && research_minimumResearchTime[research] <= seconds)
+		if (Object.hasOwn(research_MIN_RES_TIME, research) && research_MIN_RES_TIME[research] <= seconds)
 		{
 			completeResearch(research, player);
 		}
