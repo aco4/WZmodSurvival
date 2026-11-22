@@ -1,7 +1,7 @@
 namespace("spawn_")
 
 var spawn_powerTeamBest = 0;
-const spawn_multiTechLevel = getMultiTechLevel();
+const spawn_MULTI_TECH_LEVEL = getMultiTechLevel();
 const spawn_MIN_COST = 30; // Scavenger units are too cheap; enforce a minimum
 // How long should the game last? This is guidance, not a limit.
 const spawn_GAME_DURATION = (() =>
@@ -61,7 +61,7 @@ function spawn_tick()
 	// time. This prevents the enemy from out-pacing the team.
 	const frontier = (() =>
 	{
-		if (spawn_multiTechLevel === 4)
+		if (spawn_MULTI_TECH_LEVEL === 4)
 		{
 			return TEMPLATES.length;
 		}
