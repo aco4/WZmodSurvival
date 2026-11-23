@@ -1,3 +1,5 @@
+![Survival Mod](/images/banner.jpg)
+
 # SurvivalMod
 - How long can you survive?
 - Cooperative team game
