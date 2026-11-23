@@ -9,7 +9,9 @@ function gameOver_eventGameInit()
 
 function gameOver_tick()
 {
-	if (gameOver_isGameOver() === false)
+	const { gameOver, win } = gameOver_status();
+
+	if (gameOver === false)
 	{
 		queue("gameOver_tick", 3 * 1000);
 		return;
@@ -19,12 +21,12 @@ function gameOver_tick()
 	gameOver_sendMessage();
 	setTimer("gameOver_sendMessage", 5000);
 
-	gameOver_finalize(ENEMY, true);
+	gameOver_finalize(ENEMY, !win);
 	for (let player = 0; player < maxPlayers; player++)
 	{
 		if (player !== ENEMY)
 		{
-			gameOver_finalize(player, false);
+			gameOver_finalize(player, win);
 		}
 	}
 
@@ -47,16 +49,21 @@ function gameOver_finalize(player, win)
 	}
 }
 
-function gameOver_isGameOver()
+function gameOver_status()
 {
+	if (gameTimeLimit > 0 && gameTime >= gameTimeLimit)
+	{
+		return { gameOver: true, win: true };
+	}
+
 	for (let player = 0; player < maxPlayers; player++)
 	{
 		if (player !== ENEMY && gameOver_isAlive(player))
 		{
-			return false;
+			return { gameOver: false, win: false };
 		}
 	}
-	return true;
+	return { gameOver: true, win: false };
 }
 
 function gameOver_isAlive(player)
