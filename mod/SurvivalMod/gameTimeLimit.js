@@ -26,6 +26,11 @@ function gameTimeLimit_eventStartLevel()
 	{
 		queue("gameTimeLimit_warning1", gameTimeLimit - 1 * 60 * 1000);
 	}
+
+	if (gameTimeLimit > 0)
+	{
+		queue("gameTimeLimit_end", gameTimeLimit);
+	}
 }
 
 function gameTimeLimit_warning10()
@@ -71,4 +76,12 @@ function gameTimeLimit_warning1()
 	console(_("1 minute remaining"));
 	console(" ");
 	playSound("pcv467.ogg"); // "1 minute remaining"
+}
+
+function gameTimeLimit_end()
+{
+	for (const droid of enumDroid(ENEMY, DROID_ANY))
+	{
+		removeObject(droid, true);
+	}
 }
