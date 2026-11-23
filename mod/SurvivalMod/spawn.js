@@ -40,17 +40,17 @@ function spawn_tick()
 		(powerTeam / spawn_powerTeamBest)**2
 	);
 
-	// The enemy's target power obeys a minimum that rises linearly and takes
-	// effect only in late game. This keeps pressure on a stable defense.
-	const powerTarget = (() =>
+	const enemyTargetPower = (() =>
 	{
-		const G = (gameTime >> 13) * derrickPositions.length;
-		const minimum = Math.floor(G * timeMultiplier);
-		return Math.max(minimum, Math.floor(powerTeam * adjustment));
+		const gameTimeSeconds = Math.floor(gameTime / 1000);
+		const gameTimeMinutes = Math.floor(gameTimeSeconds / 60);
+		const lateGameMultiplier = Math.max(1, Math.floor(gameTimeMinutes / spawn_GAME_DURATION));
+
+		return Math.floor(powerTeam * adjustment * lateGameMultiplier);
 	})();
 
 	// Allocate enough budget to reach the target power.
-	let enemyBudget = powerTarget - spawn_getPowerEnemy();
+	let enemyBudget = enemyTargetPower - spawn_getPowerEnemy();
 
 	// Don't allow the enemy to instantly respawn 100% of their army
 	enemyBudget = enemyBudget >> 2; // divide by 4
