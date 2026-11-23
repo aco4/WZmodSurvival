@@ -1,6 +1,6 @@
 ![Survival Mod](/images/banner.jpg)
 
-# SurvivalMod
+# Survival Mod
 - How long can you survive?
 - Cooperative team game
 - An endless wave of enemies will spawn on the edge of the map
@@ -9,7 +9,7 @@
 - Make Player 0 the enemy AI
 
 ## Overlays
-Each directory in [WZmodSurvival/overlays/](/overlays/) represents a variant of the Survival Mod. These directories contain files that override the ones in [WZmodSurvival/mod/](/mod/). The workflow in [WZmodSurvival/.github/workflows/ci.yml](/.github/workflows/ci.yml) will automatically build each overlay.
+Each directory in [WZmodSurvival/overlays/](/overlays/) represents a variant of Survival Mod. These directories contain files that override the ones in [WZmodSurvival/mod/](/mod/). The workflow in [WZmodSurvival/.github/workflows/ci.yml](/.github/workflows/ci.yml) will automatically build each overlay.
 
 ## License
 SPDX-License-Identifier: GPL-2.0-or-later
