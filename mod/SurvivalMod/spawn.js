@@ -44,7 +44,7 @@ function spawn_tick()
 	{
 		const gameTimeSeconds = Math.floor(gameTime / 1000);
 		const gameTimeMinutes = Math.floor(gameTimeSeconds / 60);
-		const lateGameMultiplier = Math.max(1, Math.floor(gameTimeMinutes / spawn_GAME_DURATION));
+		const lateGameMultiplier = Math.max(1, gameTimeMinutes / spawn_GAME_DURATION);
 
 		return Math.floor(powerTeam * adjustment * lateGameMultiplier);
 	})();
