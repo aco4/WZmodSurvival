@@ -24,6 +24,11 @@ function spawn_eventStartLevel()
 
 function spawn_tick()
 {
+	if (gameTimeLimit > 0 && gameTime >= gameTimeLimit)
+	{
+		return;
+	}
+
 	const powerTeam = spawn_getPowerTeam();
 	if (powerTeam > spawn_powerTeamBest)
 	{
