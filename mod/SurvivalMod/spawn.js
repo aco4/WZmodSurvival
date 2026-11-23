@@ -11,7 +11,7 @@ const spawn_GAME_DURATION = (() =>
 	const mrt = includeJSON("minimumResearchTime.json");
 	const seconds = Object.values(mrt).reduce((acc, curr) => Math.max(acc, curr), 0);
 	const minutes = Math.ceil(seconds / 50); // Apply 20% extra duration
-	return minutes;
+	return Math.max(1, minutes); // Must be at least 1 minute
 })();
 
 function spawn_eventStartLevel()
