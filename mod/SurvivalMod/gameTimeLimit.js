@@ -30,45 +30,45 @@ function gameTimeLimit_eventStartLevel()
 
 function gameTimeLimit_warning10()
 {
-	console();
+	console(" ");
 	console(_("GAME TIME LIMIT"));
 	console(_("10 minutes remaining"));
-	console();
+	console(" ");
 	playSound("pcv463.ogg"); // "10 minutes remaining"
 }
 
 function gameTimeLimit_warning5()
 {
-	console();
+	console(" ");
 	console(_("GAME TIME LIMIT"));
 	console(_("5 minutes remaining"));
-	console();
+	console(" ");
 	playSound("pcv464.ogg"); // "5 minutes remaining"
 }
 
 function gameTimeLimit_warning3()
 {
-	console();
+	console(" ");
 	console(_("GAME TIME LIMIT"));
 	console(_("3 minutes remaining"));
-	console();
+	console(" ");
 	playSound("pcv465.ogg"); // "3 minutes remaining"
 }
 
 function gameTimeLimit_warning2()
 {
-	console();
+	console(" ");
 	console(_("GAME TIME LIMIT"));
 	console(_("2 minutes remaining"));
-	console();
+	console(" ");
 	playSound("pcv466.ogg"); // "2 minutes remaining"
 }
 
 function gameTimeLimit_warning1()
 {
-	console();
+	console(" ");
 	console(_("GAME TIME LIMIT"));
 	console(_("1 minute remaining"));
-	console();
+	console(" ");
 	playSound("pcv467.ogg"); // "1 minute remaining"
 }
