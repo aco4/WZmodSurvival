@@ -75,22 +75,6 @@ jobs:
     needs: [build-default, build-overlays]
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Generate changelog
-        run: |
-          PREV_TAG=$(git tag --sort=-creatordate | grep -v "^${{ github.ref_name }}$" | head -n1)
-          if [ -n "$PREV_TAG" ]; then
-            echo "## Commits since $PREV_TAG" > CHANGELOG.md
-            git log "$PREV_TAG..${{ github.ref_name }}" --pretty=format:"- %s (%h)" >> CHANGELOG.md
-          else
-            echo "## Commits" > CHANGELOG.md
-            git log --pretty=format:"- %s (%h)" >> CHANGELOG.md
-          fi
-
       - name: Download archives
         uses: actions/download-artifact@v4
         with:
@@ -101,4 +85,4 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: artifacts/*.zip
-          body_path: CHANGELOG.md
+          generate_release_notes: true
