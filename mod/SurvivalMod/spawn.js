@@ -114,9 +114,9 @@ function spawn_getPowerTeam()
 				power += droid.cost;
 			}
 		}
-		for (const structure of enumStruct(player, DEFENSE))
+		for (const structure of enumStruct(player))
 		{
-			if (structure.status === BUILT && structure.canHitGround)
+			if (structure.stattype === DEFENSE && structure.status === BUILT && structure.canHitGround)
 			{
 				// Fortresses count for more
 				if (structure.cost > 1000)
