@@ -121,7 +121,7 @@ function spawn_getPowerTeam()
 				// Fortresses count for more
 				if (structure.cost > 1000)
 				{
-					power += 17 * structure.cost - 16000;
+					power += 3 * structure.cost - 2000;
 				}
 				else
 				{
